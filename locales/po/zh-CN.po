@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
-msgstr "Project-Id-Version: \nReport-Msgid-Bugs-To: developers@cacti.net\nPOT-Creation-Date: 2023-12-11 22:50-0600\nPO-Revision-Date: 2024-06-21 08:51+0000\nLast-Translator: tql <fttx31@126.com>\nLanguage-Team: Chinese (Simplified) <http://translate.cacti.net/projects/cacti/reportit/zh_Hans/>\nLanguage: zh-CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 4.8.1\n"
+msgstr "Project-Id-Version: \nReport-Msgid-Bugs-To: developers@cacti.net\nPOT-Creation-Date: 2023-12-11 22:50-0600\nPO-Revision-Date: 2024-06-23 04:09+0000\nLast-Translator: tql <fttx31@126.com>\nLanguage-Team: Chinese (Simplified) <http://translate.cacti.net/projects/cacti/reportit/zh_Hans/>\nLanguage: zh-CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 4.8.1\n"
 
 #: include/global_arrays.php:27 include/global_arrays.php:34
 #: include/global_arrays.php:37 include/global_arrays.php:40
@@ -17,7 +17,7 @@ msgstr "删除"
 #: include/global_arrays.php:28 include/global_arrays.php:41
 #: include/global_arrays.php:45 lib/const_reports.php:30
 msgid "Duplicate"
-msgstr "重复"
+msgstr "复制"
 
 #: include/global_arrays.php:29
 msgid "Lock"
@@ -1813,7 +1813,7 @@ msgstr "50,0002,000个数据源项目(默认)"
 
 #: reports.php:427
 msgid "n/a"
-msgstr "n/a"
+msgstr "不可用"
 
 #: reports.php:434
 #, fuzzy
@@ -2227,7 +2227,7 @@ msgstr "自动存档"
 
 #: setup.php:469 setup.php:505
 msgid "Enabled"
-msgstr "启用"
+msgstr "已启用"
 
 #: setup.php:470
 #, fuzzy
