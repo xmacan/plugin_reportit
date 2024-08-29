@@ -426,7 +426,7 @@ function standard() {
 			)
 	);
 
-	validate_store_request_vars($filters, 'sess_templates');
+	validate_store_request_vars($filters, 'sess_reportit_templates');
 	/* ================= input validation ================= */
 
 	if (get_request_var('rows') == '-1') {

@@ -140,7 +140,7 @@ function standard() {
 			),
 	);
 
-	validate_store_request_vars($filters, 'sess_rrdlist');
+	validate_store_request_vars($filters, 'sess_reportit_rrdlist');
 	/* ================= input validation ================= */
 
 	/* ==================== checkpoint ==================== */
