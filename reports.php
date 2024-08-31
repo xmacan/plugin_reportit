@@ -661,8 +661,6 @@ function form_save() {
 				sql_save($report_data, 'plugin_reportit_reports');
 			} else {
 				$id      = get_request_var('id');
-				$columns = '(report_id, email, name)';
-				$values  = '';
 
 				$addresses = array();
 				if (strpos(get_request_var('report_email_address'),';')) {
@@ -691,21 +689,14 @@ function form_save() {
 							session_custom_error_message('report_email_address', 'Invalid email address');
 						} else {
 							if (array_key_exists($key, $recipients) && $recipients[$key][1] != '[') {
-								$name = db_qstr($recipients[$key]);
+								$name = $recipients[$key];
 							} else {
 								$name = '';
 							}
 
-							$values .= "('$id', '$value', '$name'),";
-						}
-					}
-
-					if (strlen($values)) {
-						$values = substr($values, 0, strlen($values)-1);
-
-						if (!is_error_message()) {
-							$sql = "INSERT INTO plugin_reportit_recipients $columns VALUES $values";
-							db_execute($sql);
+							db_execute_prepared('INSERT INTO plugin_reportit_recipients
+								(report_id, email, name) VALUES (?,?,?)',
+								array($id, $value, $name));
 						}
 					}
 				}
@@ -1010,7 +1001,8 @@ function report_edit() {
 
 		$display_text = array(
 			'name' => array('display' => __('Name', 'reportit'), 'width' => '50%'),
-			'email' => array('display' => __('Email', 'reportit'))
+			'email' => array('display' => __('Email', 'reportit')),
+			'action' => array('display' => __('Action', 'reportit'))
 		);
 
 		html_header($display_text);
@@ -1020,7 +1012,8 @@ function report_edit() {
 				form_alternate_row();
 				print '<td>' . $recipient['name'] . '</td>';
 				print '<td>' . $recipient['email'] . '</td>';
-				//print "<td class='right'><a class='pic fa fa-delete' href='reports.php?action=remove&id=" . get_request_var('id') . '&rec=' . $recipient['id'] . '></a></td></tr>';
+				print '<td class="right">';
+				print '<a class="deletequery fa fa-times" href="reports.php?action=remove&id=' . get_request_var('id') . '&rec=' . $recipient['id'] . '"></a></td>';
 				print '</tr>';
 			}
 		} else {
@@ -1084,13 +1077,13 @@ function report_edit() {
 				$('#main').html(data);
 				applySkin();
 
-				$('#report_email_address').attr('placeholder','<?php print __('- Email address of a recipient (or list of names) -');?>');
-				$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] - Name of a recipient (or list of names) -');?>');
+				$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)');?>');
+				$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)');?>');
 			});
 		});
 
-		$('#report_email_address').attr('placeholder','<?php print __('- Email address of a recipient (or list of names) -');?>');
-		$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] - Name of a recipient (or list of names) -');?>');
+		$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)');?>');
+		$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)');?>');
 	});
 
 	function dyn_general_tab() {
