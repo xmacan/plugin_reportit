@@ -418,9 +418,9 @@ function standard() {
 
 			if ($report['sliding']== true && $report['last_run'] == 0) {
 				$dates = rp_get_timespan($report['preset_timespan'], $report['present'], $enable_tmz);
-				form_selectable_cell( date(config_date_format(), strtotime($dates['start_date'])) . " - " . date(config_date_format(), strtotime($dates['end_date'])), $report['id']);
+				form_selectable_cell(date(config_date_format(), strtotime($dates['start_date'])) . " - " . date(config_date_format(), strtotime($dates['end_date'])), $report['id']);
 			} else {
-				form_selectable_cell( date(config_date_format(), strtotime($report['start_date'])) . " - " . date(config_date_format(), strtotime($report['end_date'])), $report['id']);
+				form_selectable_cell(($report['start_date'] == '0000-00-00' ? '00-00-0000' : date(config_date_format(), strtotime($report['start_date']))) . " - " . ($report['start_date'] == '0000-00-00' ? '00-00-0000' : date(config_date_format(), strtotime($report['end_date']))), $report['id']);
 			}
 
 			form_selectable_cell( $report_states[$report['state']], $report['id'] );
@@ -590,7 +590,7 @@ function form_save() {
 					if (($start_date = mktime(0,0,0,$ms,$ds,$ys)) > ($end_date = mktime(0,0,0,$me,$de,$ye)) || $ys > $ye || $ys > date('Y')) {
 						session_custom_error_message('report_start_date', 'Start date lies ahead');
 					}
-					if (($end_date = mktime(0,0,0,$me,$de,$ye)) > mktime() || $ye > date('Y')) {
+					if (($end_date = mktime(0,0,0,$me,$de,$ye)) > time() || $ye > date('Y')) {
 						session_custom_error_message('report_start_date', 'End date lies ahead');
 					}
 				}
