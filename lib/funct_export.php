@@ -158,13 +158,13 @@ function export_to_CSV(&$data) {
 	}
 
 	/* defined variables */
-	print "$eol # Variables: $eol";
+	print $eol . "# Variables: $eol";
 	foreach ($report_variables as $var) {
 		print "# {$var['name']}: {$var['value']} $eol";
 	}
 
 	/* build a legend to explain the abbreviations of measurands */
-	print "$eol # Legend: $eol";
+	print $eol . "# Legend: $eol";
 	foreach ($report_measurands as $id) {
 		print "# {$id['abbreviation']}: {$id['description']} $eol";
 	}
@@ -192,7 +192,7 @@ function export_to_CSV(&$data) {
 		}
 	}
 
-	print "$eol $tab_head_1 $eol $tab_head_2 $eol";
+	print $eol . "$tab_head_1 $eol $tab_head_2 $eol";
 
 	/* print results */
 	foreach ($report_results as $result){
@@ -364,7 +364,7 @@ function export_to_XML(&$data) {
 	print "</data_items>$eol";
 
 	print "</report>$eol</cacti>$eol";
-	$output = utf8_encode(ob_get_clean());
+	$output = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'ISO-8859-1');
 
 	return $output;
 }
@@ -405,7 +405,7 @@ function export_to_SML(&$data){
 	print $sml_styles;
 	print new_worksheet($data, $sml_styles);
 	print $footer;
-	$output = utf8_encode(ob_get_clean());
+	$output = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'ISO-8859-1');
 
 	return $output;
 }

@@ -458,7 +458,7 @@ function reportit_config_settings() {
 			'method'                => 'textarea',
 			'textarea_rows'         => '3',
 			'textarea_cols'         => '60',
-			'default'               => __('# Your report header\\n# <cacti_version> <reportit_version>'),
+			'default'               => __('# Your report header # <cacti_version> <reportit_version>'),
 		),
 		'reportit_header4'          => array(
 			'friendly_name'         => __('Auto Archiving'),
