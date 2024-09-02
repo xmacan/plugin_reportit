@@ -129,6 +129,8 @@ community.  After that you should open a feature request on
 
 * issue#109: Session variable conflict with Cacti reports causes PHP warning
 
+* issue: Fix PHP8.x issues
+
 --- 1.1.3 ---
 
 * issue#37: When adding a new template, changing the drop down box and clicking
