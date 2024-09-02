@@ -1188,10 +1188,26 @@ function transform_htmlspecialchars(&$data){
 	}
 }
 
+function return_bytes($val) {
+	$val = trim($val);
+	$last = strtolower($val[strlen($val)-1]);
+	$val = substr($val, 0, -1);
+	switch($last) {
+		case 'g':
+			$val *= 1024;
+		case 'm':
+			$val *= 1024;
+		case 'k':
+			$val *= 1024;
+	}
+	return $val;
+}
+
 function get_mem_usage() {
 	if (version_compare(phpversion(), '5.2.1') == -1) return;
 
-	$memory_system  = ini_get('memory_limit') .'B ';
+	$memory_system = return_bytes(ini_get('memory_limit'));
+
 	$memory_used    = round(memory_get_usage()/pow(1024,2),2);
 	$memory_peak    = round(memory_get_peak_usage()/pow(1024,2),2);
 
@@ -1200,8 +1216,13 @@ function get_mem_usage() {
 		$memory_used   .= 'MB';
 		$memory_peak   .= 'MB';
 	} else {
-		$memory_used   .= 'MB(' . round($memory_used/$memory_system*100,2) . '%)';
-		$memory_peak   .= 'MB(' . round($memory_peak/$memory_system*100,2) . '%)';
+		if (!is_numeric($memory_used) || !is_numeric($memory_peak) || !is_numeric($memory_system)) {
+			$memory_used = 'Undetected';
+			$memory_peak = 'Undetected';
+		} else {
+			$memory_used   .= 'MB(' . round($memory_used/$memory_system*100,2) . '%)';
+			$memory_peak   .= 'MB(' . round($memory_peak/$memory_system*100,2) . '%)';
+		}
 	}
 
 	print " Memory:  System: $memory_system   Used: $memory_used   Peak: $memory_peak\n";
