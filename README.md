@@ -129,7 +129,20 @@ community.  After that you should open a feature request on
 
 * issue#109: Session variable conflict with Cacti reports causes PHP warning
 
-* issue: Fix PHP8.x issues
+* issue: Replace obsolete PHP5 graph library (phpgraphlib)
+
+* issue: PHP8.x compatibility
+
+* issue#84 - syntax error in eval
+
+* issue#86 - reports are not running 
+
+* issue#92 - fix time/period formats 
+
+* issue#94 - fix automatic reports sending 
+
+* issue#110 - fix error when top 10 graphs is used 
+
 
 --- 1.1.3 ---
 

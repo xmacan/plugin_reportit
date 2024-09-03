@@ -34,7 +34,6 @@ if (!defined('REPORTIT_BASE_PATH')) {
 include_once(REPORTIT_BASE_PATH . '/lib/funct_validate.php');
 include_once(REPORTIT_BASE_PATH . '/lib/funct_shared.php');
 include_once(REPORTIT_BASE_PATH . '/lib/funct_online.php');
-require_once(REPORTIT_BASE_PATH . '/include/vendor/phpgraphlib/phpgraphlib.php');
 
 /* start with graphing */
 create_chart();
@@ -149,6 +148,7 @@ function create_chart(){
 			: read_graph_config_option('reportit_g_height');
 	if ($height < 100) $height = 768;
 
+//!!pm tady
 	/* load Graidle */
 	$chart = new PHPGraphLib($width, $height);
 	$chart->setTitle($title);
