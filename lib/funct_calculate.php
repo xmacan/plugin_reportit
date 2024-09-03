@@ -527,6 +527,10 @@ function calculate(& $data,& $params, & $variables, & $df_cache, & $dm_cache, & 
 
 			debug($debug, "Interpretation");
 
+			if (stripos($formula, '|query_NAN|') !== false) {
+				return 'NULL';
+			}
+
 			$calculate_last_formula = "$formula";
 			eval("\$result = $formula;");
 			$calculate_last_formula = "";

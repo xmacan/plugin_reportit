@@ -158,7 +158,7 @@ function standard() {
 			)
 	);
 
-	validate_store_request_vars($filters, 'sess_view');
+	validate_store_request_vars($filters, 'sess_reportit_view');
 	/* ================= input validation ================= */
 
 	if (get_request_var('rows') == '-1') {
@@ -394,7 +394,7 @@ function validate_report_vars() {
 			)
 	);
 
-	validate_store_request_vars($filters, 'sess_show_' . $id);
+	validate_store_request_vars($filters, 'sess_reportit_show_' . $id);
 	/* ================= input validation ================= */
 
 	return $id;
@@ -740,7 +740,7 @@ function show_report() {
 	if (isempty_request_var('graph_mode')) {
 		show_table_view($data, $ds_description, $rs_description, $ov_description, $count_ov, $count_rs, $columns, $rows, $total_rows);
 	} else {
-		show_graph_view($data, $ds_description, $rs_description, $ov_description, $count_ov, $count_rs, $columns);
+		show_graph_view($data, $ds_description, $rs_description, $ov_description, $count_ov, $count_rs);
 	}
 }
 
@@ -908,18 +908,13 @@ function show_graph_view($data, $ds_description, $rs_description, $ov_descriptio
 	global $config, $colors, $graphs, $limit;
 
 	$affix            = "";
-	$description	  = "";
+	$description      = "";
+	$limitation       = 10;
 
 	$report_ds_alias  = $data['report_ds_alias'];
 	$report_data      = $data['report_data'];
 	$mea              = $data['report_measurands'];
 	$report_header    = $report_data['description'];
-
-	/* Filter settings */
-	$limitation = abs(get_request_var('limit'))*5;
-	if ($limitation == 0) {
-		$limitation = 10;
-	}
 
 	//html_graph_start_box(3, false);
 	print "<table>";

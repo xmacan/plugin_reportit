@@ -461,8 +461,10 @@ function get_prepared_data(&$rrd_data, &$rrd_ad_data, $rrd_ds_cnt, $ds_type, $co
 			for ($k = 1; $k < $steps; $k++) {
 				$number = $index + $k * $rrd_ds_cnt;
 
-				$data[$i][$number]  = $rrd_data[$number];
-				$multi[$i][$number] = 1;
+				if (isset($rrd_data[$number])) {
+					$data[$i][$number]  = $rrd_data[$number];
+					$multi[$i][$number] = 1;
+				}
 			}
 
 			//Correct the latest shift value if needfully (Type 'Counter' only)

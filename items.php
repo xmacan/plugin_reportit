@@ -154,7 +154,7 @@ function standard() {
 	);
 	$filters = api_plugin_hook_function('report_filters', $filters);
 
-	validate_store_request_vars($filters, 'sess_items');
+	validate_store_request_vars($filters, 'sess_reportit_items');
 	/* ================= input validation ================= */
 
 	/* ==================== checkpoint ==================== */

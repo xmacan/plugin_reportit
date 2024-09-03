@@ -956,7 +956,7 @@ function update_xml_archive($report_id) {
 
 	print "</variables>$eol</report>$eol</cacti>$eol";
 	$content = ob_get_clean();
-	$content = utf8_encode($content);
+	$content = mb_convert_encoding($content, 'UTF-8', 'ISO-8859-1');
 
 	/* create a tempary file and save XML output*/
 	$cfg = $data['report_data'];
@@ -1170,28 +1170,44 @@ function transform_htmlspecialchars(&$data){
 				foreach ($value_1 as $key_2 => $value_2) {
 					if (is_array($value_2)) {
 						foreach ($value_2 as $key_3 => $value_3) {
-							$value_2[$key_3] = htmlspecialchars($value_3);
+							$value_2[$key_3] = is_null($value_3) ? '' : htmlspecialchars($value_3);
 
 						}
 
 						$value_1[$key_2] = $value_2;
 					} else {
-						$value_1[$key_2] = htmlspecialchars($value_2);
+						$value_1[$key_2] = is_null($value_2) ? '' : htmlspecialchars($value_2);
 					}
 				}
 
 				$data[$key_1] = $value_1;
 			} else {
-				$data[$key_1] = htmlspecialchars($value_1);
+				$data[$key_1] = is_null($value_1)? '' : htmlspecialchars($value_1);
 			}
 		}
 	}
 }
 
+function return_bytes($val) {
+	$val = trim($val);
+	$last = strtolower($val[strlen($val)-1]);
+	$val = substr($val, 0, -1);
+	switch($last) {
+		case 'g':
+			$val *= 1024;
+		case 'm':
+			$val *= 1024;
+		case 'k':
+			$val *= 1024;
+	}
+	return $val;
+}
+
 function get_mem_usage() {
 	if (version_compare(phpversion(), '5.2.1') == -1) return;
 
-	$memory_system  = ini_get('memory_limit') .'B ';
+	$memory_system = return_bytes(ini_get('memory_limit'));
+
 	$memory_used    = round(memory_get_usage()/pow(1024,2),2);
 	$memory_peak    = round(memory_get_peak_usage()/pow(1024,2),2);
 
@@ -1200,8 +1216,13 @@ function get_mem_usage() {
 		$memory_used   .= 'MB';
 		$memory_peak   .= 'MB';
 	} else {
-		$memory_used   .= 'MB(' . round($memory_used/$memory_system*100,2) . '%)';
-		$memory_peak   .= 'MB(' . round($memory_peak/$memory_system*100,2) . '%)';
+		if (!is_numeric($memory_used) || !is_numeric($memory_peak) || !is_numeric($memory_system)) {
+			$memory_used = 'Undetected';
+			$memory_peak = 'Undetected';
+		} else {
+			$memory_used   .= 'MB(' . round($memory_used/$memory_system*100,2) . '%)';
+			$memory_peak   .= 'MB(' . round($memory_peak/$memory_system*100,2) . '%)';
+		}
 	}
 
 	print " Memory:  System: $memory_system   Used: $memory_used   Peak: $memory_peak\n";

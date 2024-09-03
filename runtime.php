@@ -48,8 +48,8 @@ if (isset($_SERVER['argv']['0']) && realpath($_SERVER['argv']['0']) == __FILE__)
 	$no_http_headers = true;
 	require_once('include/global.php');
 	include_once($config['base_path'] . '/lib/rrd.php');
-	@define('REPORTIT_BASE_PATH', $path);
-	@define('CACTI_BASE_PATH', __DIR__);
+//	@define('REPORTIT_BASE_PATH', $path);
+//	@define('CACTI_BASE_PATH', __DIR__);
 	include_once(REPORTIT_BASE_PATH . '/setup.php');
 	include_once(REPORTIT_BASE_PATH . '/lib/funct_shared.php');
 	include_once(REPORTIT_BASE_PATH . '/lib/const_runtime.php');
