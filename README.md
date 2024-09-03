@@ -92,6 +92,11 @@ another scheduler, will have write access to the folders called "tmp" and
 the Cacti Webinterface and check the settings under
 "Console->Settings->Reports".
 
+## How to use
+Console -> Templates -> Reports - create report template, enable publish, disable locked
+Console -> Management -> Reports - create report from your template. Don't forget use "Add data items"
+Use ReportIT tab
+
 ## Authors
 
 ReportIt was created and written by Andreas Braun (browniebraun) with numerous
