@@ -473,7 +473,7 @@ $form_array_general = array(
 		'description' => __('If checked the reporting period will be configured automatically in relation to the point of time the calculation starts.', 'reportit'),
 		'method' => 'checkbox',
 		'value' => '|arg1:sliding|',
-		'default' => 'on',
+		'default' => 'off',
 	),
 	'report_timespan' => array(
 		'friendly_name' => __('Time Frames', 'reportit'),
