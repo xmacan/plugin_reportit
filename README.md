@@ -126,6 +126,8 @@ community.  After that you should open a feature request on
 
 --- develop ---
 
+--- 1.1.4 ---
+
 * issue: ReportIt constantly attempting to register realms
 
 * feature: Message more elegantly when there are no Report Templates.
