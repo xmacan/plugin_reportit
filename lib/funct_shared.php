@@ -879,9 +879,6 @@ function load_external_libs($name){
 		case 'pclzip':
 			if (!defined('PCLZIP_TEMPORARY_DIR')) define( 'PCLZIP_TEMPORARY_DIR', REPORTIT_TMP_FD);
 			include_once(REPORTIT_BASE_PATH . '/include/vendor/pclzip/pclzip.lib.php');
-		case 'phpgraphlib':
-			if (!defined('PCLZIP_TEMPORARY_DIR')) define( 'PCLZIP_TEMPORARY_DIR', REPORTIT_TMP_FD);
-			include_once(REPORTIT_BASE_PATH . '/include/vendor/phpgraphlib/phpgraphlib.php');
 		break;
 		case 'graidle':
 

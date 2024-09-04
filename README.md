@@ -92,6 +92,11 @@ another scheduler, will have write access to the folders called "tmp" and
 the Cacti Webinterface and check the settings under
 "Console->Settings->Reports".
 
+## How to use
+Console -> Templates -> Reports - create report template, enable publish, disable locked
+Console -> Management -> Reports - create report from your template. Don't forget use "Add data items"
+Use ReportIT tab
+
 ## Authors
 
 ReportIt was created and written by Andreas Braun (browniebraun) with numerous
@@ -121,6 +126,8 @@ community.  After that you should open a feature request on
 
 --- develop ---
 
+--- 1.1.4 ---
+
 * issue: ReportIt constantly attempting to register realms
 
 * feature: Message more elegantly when there are no Report Templates.
@@ -129,7 +136,20 @@ community.  After that you should open a feature request on
 
 * issue#109: Session variable conflict with Cacti reports causes PHP warning
 
-* issue: Fix PHP8.x issues
+* issue: Replace obsolete PHP5 graph library (phpgraphlib)
+
+* issue: PHP8.x compatibility
+
+* issue#84 - syntax error in eval
+
+* issue#86 - reports are not running 
+
+* issue#92 - fix time/period formats 
+
+* issue#94 - fix automatic reports sending 
+
+* issue#110 - fix error when top 10 graphs is used 
+
 
 --- 1.1.3 ---
 

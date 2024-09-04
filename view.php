@@ -929,6 +929,7 @@ function show_graph_view($data, $ds_description, $rs_description, $ov_descriptio
 
 		$name	= ($datasource != 'overall') ? $rs_description : $ov_description;
 		if ($name !== false) {
+			$graph_id = 0;
 			foreach($name as $id) {
 				$var			= ($datasource != 'overall') ? $datasource.'__'.$id : 'spanned__'.$id;
 				$title 			= $mea[$id]['description'];
@@ -951,11 +952,16 @@ function show_graph_view($data, $ds_description, $rs_description, $ov_descriptio
 						$sql =	"SELECT * FROM plugin_reportit_tmp_" . get_request_var('id') . "_" . get_request_var('archive') . " AS a
 								 $suffix";
 					}
-
 					$data = db_fetch_assoc($sql);
 					print "<tr bgcolor='#a9b7cb'><td colspan='3' class='textHeaderDark'><strong>Measurand:</strong> $title ({$mea[$id]['abbreviation']})</td></tr>";
-					//print "<tr valign='top'><td colspan='2'><a href='./cc_graphs.php?id={get_request_var('id')}&source=$var' style='border: 1px solid #bbbbbb;' alt='$title ({$mea[$id]['abbreviation']})'>hallo</a></td>";
-					print "<tr valign='top'><td colspan='2'><img src='graph.php?id=" .get_request_var('id')  . "&source=$var' style='border: 1px solid #bbbbbb;' alt='$title ({$mea[$id]['abbreviation']})' height='300px'></td>";
+
+					$graph_data = array();
+					foreach ($data as $row)	{
+						$graph_data[$row['name_cache']] = $row[$var];
+					}
+
+					print "<tr valign='top'><td colspan='2'>" . plugin_reportit_graph ('graph_' . $var . '_' . $graph_id, $graph_data) . "</td>";
+					$graph_id++;
 					print "<td colspan='1' width='100%'><table width='100%'>";
 					if (count($data)>0) {
 						//html_report_start_box();
@@ -1033,3 +1039,56 @@ function show_graph_overview() {
 	header('Location: ' . $config['url_path'] . "graph.php?action=zoom&local_graph_id=$local_graph_id&rra_id=0&graph_start=$start&graph_end=$end");
 	exit;
 }
+
+
+// 1.2.24+ has billboard.js with treemap
+
+function plugin_reportit_graph ($graph_id, $graph_data) {
+	global $config;
+
+	$content = '';
+
+	$xid = substr(md5($graph_id), 0, 7);
+
+	$labels = array();
+	$values = array();
+
+	$content  = '<div id="treemap_' . $xid. '"></div>';
+	$content .= '<script type="text/javascript">';
+	$content .= 'treemap_' . $xid . ' = bb.generate({';
+	$content .= " bindto: \"#treemap_$xid\",";
+
+	$content .= " size: {";
+	$content .= "  height: 300,";
+	$content .= "  width: 600";
+	$content .= " },";
+
+	$content .= " data: {";
+	$content .= "  columns: [";
+
+	foreach ($graph_data as $key => $value) {
+		$content .= "['" . $key . "', " . $value . "],";
+	}
+
+	$content .= "  ],";
+	$content .= "  type: 'treemap',";
+	$content .= "  labels: {";
+	$content .= "    colors: '#fff'";
+	$content .= "  }";
+	$content .= "  },";
+
+	$content .= "  treemap: {";
+	$content .= "    label: {";
+	$content .= "      threshold: 0.03, show: true,";
+	$content .= "    }";
+	$content .= "  },";
+
+	$content .= "});";
+	$content .= "</script>";
+
+	return $content;
+}
+
+
+
+
