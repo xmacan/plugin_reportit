@@ -937,13 +937,13 @@ function form_actions() {
 			$ds_list[$template_identifier] = array();
 
 			//Fetch all descriptions of reports attached to this template
-			$template_reports = db_fetch_assoc_prepared('SELECT id, name, description
+			$template_reports = db_fetch_assoc_prepared('SELECT id, description
 				FROM plugin_reportit_reports
 				WHERE template_id = ?',
 				array($id));
 
 			foreach ($template_reports as $key => $value) {
-				$ds_list[$template_identifier][] = "<a href='./reports.php?action=report_edit&id={$template_reports[$key]['id']}'>{$template_reports[$key]['name']}</a> (" . $template_reports[$key]['description'] . ')';
+				$ds_list[$template_identifier][] = "<a href='./reports.php?action=report_edit&id={$template_reports[$key]['id']}'>{$template_reports[$key]['description']}</a>";
 			}
 		}
 	}
