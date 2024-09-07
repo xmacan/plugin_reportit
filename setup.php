@@ -31,9 +31,15 @@ function plugin_reportit_install() {
 	api_plugin_register_hook('reportit', 'poller_bottom',         'reportit_poller_bottom',        'setup.php');
 	api_plugin_register_hook('reportit', 'clog_regex_array',      'reportit_clog_regex_array',     'setup.php');
 
-	api_plugin_register_realm('reportit', 'view.php,charts.php', __('View Reports'), 1);
-	api_plugin_register_realm('reportit', 'reports.php,rrdlist.php,items.php,run.php', __('Create Reports'), 1);
-	api_plugin_register_realm('reportit', 'templates.php,measurands.php,variables.php', __('Administrate Reports'), 1);
+	api_plugin_register_realm('reportit', 'view.php,charts.php', 'View Reports', 1);
+	api_plugin_register_realm('reportit', 'reports.php,rrdlist.php,items.php,run.php', 'Create Reports', 1);
+	api_plugin_register_realm('reportit', 'templates.php,measurands.php,variables.php', 'Administrate Reports', 1);
+
+	$realm_array = array(
+		__('View Reports', 'reportit'),
+		__('Create Reports', 'reportit'),
+		__('Administrate Reports', 'reportit')
+	);
 
 	reportit_system_setup();
 }
@@ -126,223 +132,223 @@ function reportit_upgrade_requirements() {
 
 function reportit_draw_navigation_text ($nav) {
 	$nav['reports.php:'] = array(
-		'title' => __('Reports'),
+		'title' => __('Reports', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'reports.php',
 		'level' => '1');
 
 	$nav['reports.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['reports.php:report_add'] = array(
-		'title' => __('Add'),
+		'title' => __('Add', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['reports.php:report_edit'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['reports.php:actions'] = array(
-		'title' => __('Actions'),
+		'title' => __('Actions', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['rrdlist.php:'] = array(
-		'title' => __('Data Items'),
+		'title' => __('Data Items', 'reportit'),
 		'mapping' => 'index.php:,reports.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['rrdlist.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,reports.php:,rrdlist.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['rrdlist.php:rrdlist_edit'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,reports.php:,rrdlist.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['rrdlist.php:actions'] = array(
-		'title' => __('Actions'),
+		'title' => __('Actions', 'reportit'),
 		'mapping' => 'index.php:,reports.php:,rrdlist.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['items.php:'] = array(
-		'title' => __('Add'),
+		'title' => __('Add', 'reportit'),
 		'mapping' => 'index.php:,reports.php:,rrdlist.php:',
 		'url'  => 'templates.php',
 		'level' => '3');
 
 	$nav['items.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,reports.php:,rrdlist.php:',
 		'url' => '',
 		'level' => '4');
 
 	$nav['templates.php:'] = array(
-		'title' => __('Report Templates'),
+		'title' => __('Report Templates', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'templates.php',
 		'level' => '1');
 
 	$nav['templates.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_edit'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_new'] = array(
-		'title' => __('Add'),
+		'title' => __('Add', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_import_wizard'] = array(
-		'title' => __('Import'),
+		'title' => __('Import', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_upload_wizard'] = array(
-		'title' => __('Import'),
+		'title' => __('Import', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_import'] = array(
-		'title' => __('Export'),
+		'title' => __('Export', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_export'] = array(
-		'title' => __('Export'),
+		'title' => __('Export', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:template_export_wizard'] = array(
-		'title' => __('Export'),
+		'title' => __('Export', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['templates.php:actions'] = array(
-		'title' => __('Actions'),
+		'title' => __('Actions', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['measurands.php:'] = array(
-		'title' => __('Measurands'),
+		'title' => __('Measurands', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['measurands.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,measurands.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['measurands.php:measurand_edit'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,measurands.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['measurands.php:actions'] = array(
-		'title' => __('Actions'),
+		'title' => __('Actions', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,measurands.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['variables.php:'] = array(
-		'title' => __('Variables'),
+		'title' => __('Variables', 'reportit'),
 		'mapping' => 'index.php:,templates.php:',
 		'url' => 'templates.php',
 		'level' => '2');
 
 	$nav['variables.php:save'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,variables.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['variables.php:variable_edit'] = array(
-		'title' => __('(Edit)'),
+		'title' => __('(Edit)', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,variables.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['variables.php:actions'] = array(
-		'title' => __('Actions'),
+		'title' => __('Actions', 'reportit'),
 		'mapping' => 'index.php:,templates.php:,variables.php:',
 		'url' => '',
 		'level' => '3');
 
 	$nav['run.php:calculation'] = array(
-		'title' => __('Report Calculation'),
+		'title' => __('Report Calculation', 'reportit'),
 		'mapping' => 'index.php:,reports.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['view.php:'] = array(
-		'title' => __('Public Reports'),
+		'title' => __('Public Reports', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'view.php',
 		'level' => '1');
 
 	$nav['view.php:show_report'] = array(
-		'title' => __('Show Report'),
+		'title' => __('Show Report', 'reportit'),
 		'mapping' => 'index.php:,view.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['view.php:export'] = array(
-		'title' => __('Export Report'),
+		'title' => __('Export Report', 'reportit'),
 		'mapping' => 'index.php:,view.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['view.php:show_graphs'] = array(
-		'title' => __('Show Report'),
+		'title' => __('Show Report', 'reportit'),
 		'mapping' => 'index.php:,view.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['charts.php:'] = array(
-		'title' => __('Public Report Charts'),
+		'title' => __('Public Report Charts', 'reportit'),
 		'mapping' => 'index.php:',
 		'url' => 'graph.php',
 		'level' => '1');
 
 	$nav['charts.php:bar'] = array(
-		'title' => __('Bar Chart'),
+		'title' => __('Bar Chart', 'reportit'),
 		'mapping' => 'index.php:,graph.php:',
 		'url' => '',
 		'level' => '2');
 
 	$nav['charts.php:pie'] = array(
-		'title' => __('Pie Chart'),
+		'title' => __('Pie Chart', 'reportit'),
 		'mapping' => 'index.php:,graph.php:',
 		'url' => '',
 		'level' => '2');
@@ -362,8 +368,8 @@ function reportit_config_arrays() {
 
 	/* show additional menu entries if plugin is enabled */
 	if (api_plugin_is_enabled('reportit')) {
-		$menu[__('Management')]['plugins/reportit/reports.php']  = __('Reports');
-		$menu[__('Templates')]['plugins/reportit/templates.php'] = __('Report');
+		$menu[__('Management')]['plugins/reportit/reports.php']  = __('Reports', 'reportit');
+		$menu[__('Templates')]['plugins/reportit/templates.php'] = __('Report', 'reportit');
 
 		$temp = array(
 			'reportit_templates__1' => array(
@@ -373,7 +379,7 @@ function reportit_config_arrays() {
 				'message' => __('Unselected data source items are still in use', 'reportit'),
 				'type' => 'error'),
 			'reportit_templates__3' => array(
-				'message' => __('Unable to unlock this template without defined measurands'),
+				'message' => __('Unable to unlock this template without defined measurands', 'reportit'),
 				'type' => 'error'),
 		);
 		$messages += $temp;
@@ -384,135 +390,135 @@ function reportit_config_settings() {
 	global $tabs, $tabs_graphs, $settings, $graph_dateformats, $graph_datechar, $settings_graphs, $config;
 
 	/* presets */
-	$datetime              = array(__('local'), __('global'));
+	$datetime              = array(__('local', 'reportit'), __('global', 'reportit'));
 	$csv_column_separator  = array(',', ';', 'Tab', 'Blank');
 	$csv_decimal_separator = array(',', '.');
 
 	$operator = array(
-		__('Power User (Report Owner)'),
-		__('Super User (Report Admin)')
+		__('Power User (Report Owner)', 'reportit'),
+		__('Super User (Report Admin)', 'reportit')
 	);
 
 	/* setup ReportIt's global configuration area */
-	$tabs['reports'] = __('Reports');
+	$tabs['reports'] = __('Reports', 'reportit');
 
-	$temp =  array(
-		'reportit_header1'          => array(
-			'friendly_name'         => __('General'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+	$temp = array(
+		'reportit_header1' => array(
+			'friendly_name' => __('General', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_met'              => array(
-			'friendly_name'         => __('Maximum Execution Time (in seconds)'),
-			'description'           => __('Optional: Maximum execution time of one calculation.'),
-			'method'                => 'textbox',
-			'max_length'            => '4',
-			'default'               => '300',
+		'reportit_met' => array(
+			'friendly_name' => __('Maximum Execution Time (in seconds)', 'reportit'),
+			'description'   => __('Optional: Maximum execution time of one calculation.', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '4',
+			'default'       => '300',
 		),
-		'reportit_maxrrdchg'        => array(
-			'friendly_name'         => __('Maximum Record Count Change'),
-			'description'           => __('Optional (Auto-Generate RRD List): Do not change RRD List of any Report if Record Count Change is greater than this Number This is to avoid unwanted and disastrous changes on RRD Lists'),
-			'method'                => 'textbox',
-			'max_length'            => '4',
-			'default'               => '100',
+		'reportit_maxrrdchg' => array(
+			'friendly_name' => __('Maximum Record Count Change', 'reportit'),
+			'description'   => __('Optional (Auto-Generate RRD List): Do not change RRD List of any Report if Record Count Change is greater than this Number This is to avoid unwanted and disastrous changes on RRD Lists', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '4',
+			'default'       => '100',
 		),
-		'reportit_use_tmz'          => array(
-			'friendly_name'         => __('Time Zones'),
-			'description'           => __('Enable/disable the use of time zones for data item\'s configuration and report calculation.  In the former case server time has to be set up to GMT/UTC!'),
-			'method'                => 'checkbox',
-			'default'               => '',
+		'reportit_use_tmz' => array(
+			'friendly_name' => __('Time Zones', 'reportit'),
+			'description'   => __('Enable/disable the use of time zones for data item\'s configuration and report calculation.  In the former case server time has to be set up to GMT/UTC!', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => '',
 		),
-		'reportit_show_tmz'         => array(
-			'friendly_name'         => __('Show Local Time Zone'),
-			'description'           => __('Enable/disable to display server\'s timezone on the headlines.'),
-			'method'                => 'checkbox',
-			'default'               => 'on',
+		'reportit_show_tmz' => array(
+			'friendly_name' => __('Show Local Time Zone', 'reportit'),
+			'description'   => __('Enable/disable to display server\'s timezone on the headlines.', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => 'on',
 		),
-		'reportit_operator'         => array(
-			'friendly_name'         => __('Allow scheduling by Operators'),
-			'description'           => __('Enable/disable Operator\'s ability to schedule reports.  When disabled, only administrators may change scheduling.'),
-			'method'                => 'checkbox',
-			'default'               => '',
+		'reportit_operator' => array(
+			'friendly_name' => __('Allow scheduling by Operators', 'reportit'),
+			'description'   => __('Enable/disable Operator\'s ability to schedule reports.  When disabled, only administrators may change scheduling.', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => '',
 		),
-		'reportit_use_IEC'          => array(
-			'friendly_name'         => __('SI-Prefixes'),
-			'description'           => __('Enable/disable the use of correct SI-Prefixes for binary multiples under the terms of <a href=\'http://www.ieee.org\'>IEEE 1541</a> and <a href=\'http://www.iec.ch/zone/si/si_bytes.htm\'>IEC 60027-2</a>.'),
-			'method'                => 'checkbox',
-			'default'               => 'on',
+		'reportit_use_IEC' => array(
+			'friendly_name' => __('SI-Prefixes', 'reportit'),
+			'description'   => __('Enable/disable the use of correct SI-Prefixes for binary multiples under the terms of <a href=\'http://www.ieee.org\'>IEEE 1541</a> and <a href=\'http://www.iec.ch/zone/si/si_bytes.htm\'>IEC 60027-2</a>.', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => 'on',
 		),
-		'reportit_header3'          => array(
-			'friendly_name'         => __('Export Settings'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+		'reportit_header3' => array(
+			'friendly_name' => __('Export Settings', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_exp_filename'     => array(
-			'friendly_name'         => __('Filename Format'),
-			'description'           => __('The name format for the export files created on demand.'),
-			'max_length'            => '100',
-			'method'                => 'textbox',
-			'default'               => 'cacti_report_<report_id>',
+		'reportit_exp_filename' => array(
+			'friendly_name' => __('Filename Format', 'reportit'),
+			'description'   => __('The name format for the export files created on demand.', 'reportit'),
+			'max_length'    => '100',
+			'method'        => 'textbox',
+			'default'       => 'cacti_report_<report_id>',
 		),
-		'reportit_exp_header'       => array(
-			'friendly_name'         => __('Export Header'),
-			'description'           => __('The header description for export files'),
-			'method'                => 'textarea',
-			'textarea_rows'         => '3',
-			'textarea_cols'         => '60',
-			'default'               => __('# Your report header # <cacti_version> <reportit_version>'),
+		'reportit_exp_header' => array(
+			'friendly_name' => __('Export Header', 'reportit'),
+			'description'   => __('The header description for export files', 'reportit'),
+			'method'        => 'textarea',
+			'textarea_rows' => '3',
+			'textarea_cols' => '60',
+			'default'       => __('# Your report header # <cacti_version> <reportit_version>', 'reportit'),
 		),
-		'reportit_header4'          => array(
-			'friendly_name'         => __('Auto Archiving'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+		'reportit_header4' => array(
+			'friendly_name' => __('Auto Archiving', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_archive'          => array(
-			'friendly_name'         => __('Enabled'),
-			'description'           => __('If enabled the result of every scheduled report will be archived automatically'),
-			'method'                => 'checkbox',
-			'default'               => '',
+		'reportit_archive' => array(
+			'friendly_name' => __('Enabled', 'reportit'),
+			'description'   => __('If enabled the result of every scheduled report will be archived automatically', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => '',
 		),
-		'reportit_arc_lifecycle'    => array(
-			'friendly_name'         => __('Cache Life Cycle (in seconds)'),
-			'description'           => __('Number of seconds an archived report will be cached without any hit.'),
-			'method'                => 'textbox',
-			'max_length'            => '4',
-			'default'               => '300',
+		'reportit_arc_lifecycle' => array(
+			'friendly_name' => __('Cache Life Cycle (in seconds)', 'reportit'),
+			'description'   => __('Number of seconds an archived report will be cached without any hit.', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '4',
+			'default'       => '300',
 		),
-		'reportit_arc_folder'       => array(
-			'friendly_name'         => __('Archive Path', 'reportit'),
-			'description'           => __('The path to an archive folder where archives have to be stored.', 'reportit'),
-			'method'                => 'dirpath',
-			'max_length'            => '255',
-			'default'               => REPORTIT_ARC_FD,
+		'reportit_arc_folder' => array(
+			'friendly_name' => __('Archive Path', 'reportit'),
+			'description'   => __('The path to an archive folder where archives have to be stored.', 'reportit'),
+			'method'        => 'dirpath',
+			'max_length'    => '255',
+			'default'       => REPORTIT_ARC_FD,
 		),
-		'reportit_header5'          => array(
-			'friendly_name'         => __('Auto E-Mailing'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+		'reportit_header5' => array(
+			'friendly_name' => __('Auto E-Mailing', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_email'            => array(
-			'friendly_name'         => __('Enable'),
-			'description'           => __('If enabled scheduled reports can be emailed automatically to a list of recipients.<br> This feature requires a configured version of the \'Settings Plugin\'.'),
-			'method'                => 'checkbox',
-			'default'               => '',
+		'reportit_email' => array(
+			'friendly_name' => __('Enable', 'reportit'),
+			'description'   => __('If enabled scheduled reports can be emailed automatically to a list of recipients.<br> This feature requires a configured version of the \'Settings Plugin\'.', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => '',
 		),
-		'reportit_header6'          => array(
-			'friendly_name'         => __('Auto Exporting'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+		'reportit_header6' => array(
+			'friendly_name' => __('Auto Exporting', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_auto_export'      => array(
-			'friendly_name'         => __('Enabled'),
-			'description'           => __('If enabled scheduled reports can be exported automatically to a specified folder.<br> Therefore a full structured path architecture will be used:<br> Main Folder -> Template Folder (if defined) or Template ID -> Report ID -> Report'),
-			'method'                => 'checkbox',
-			'default'               => '',
+		'reportit_auto_export' => array(
+			'friendly_name' => __('Enabled', 'reportit'),
+			'description'   => __('If enabled scheduled reports can be exported automatically to a specified folder.<br> Therefore a full structured path architecture will be used:<br> Main Folder > Template Folder (if defined) or Template ID > Report ID > Report', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => '',
 		),
-		'reportit_exp_folder'       => array(
-			'friendly_name'         => __('Export Path', 'reportit'),
-			'description'           => __('The main path to an export folder for saving the exports.', 'reportit'),
-			'method'                => 'dirpath',
-			'max_length'            => '255',
-			'default'               => REPORTIT_EXP_FD,
+		'reportit_exp_folder' => array(
+			'friendly_name' => __('Export Path', 'reportit'),
+			'description'   => __('The main path to an export folder for saving the exports.', 'reportit'),
+			'method'        => 'dirpath',
+			'max_length'    => '255',
+			'default'       => REPORTIT_EXP_FD,
 		),
 	);
 
@@ -524,39 +530,39 @@ function reportit_config_settings() {
 	}
 
 	//Extension of graph settings
-	$tabs_graphs['reportit'] = __('ReportIt General Settings');
+	$tabs_graphs['reportit'] = __('ReportIt General Settings', 'reportit');
 	$temp =  array(
-		'reportit_view_filter'      => array(
-			'friendly_name'         => __('Separate Report View Filter'),
-			'description'           => __('Enable/disable the use of an individual filter per report.'),
-			'method'                => 'checkbox',
-			'default'               => 'on',
+		'reportit_view_filter' => array(
+			'friendly_name' => __('Separate Report View Filter', 'reportit'),
+			'description'   => __('Enable/disable the use of an individual filter per report.', 'reportit'),
+			'method'        => 'checkbox',
+			'default'       => 'on',
 		),
-		'reportit_max_rows'         => array(
-			'friendly_name'         => __('Rows Per Page'),
-			'description'           => __('The number of rows to display on a single page.'),
-			'method'                => 'textbox',
-			'max_length'            => '3',
-			'default'               => '25',
+		'reportit_max_rows' => array(
+			'friendly_name' => __('Rows Per Page', 'reportit'),
+			'description'   => __('The number of rows to display on a single page.', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '3',
+			'default'       => '25',
 		),
-		'reportit_csv_header'       => array(
-			'friendly_name'         => __('ReportIt Export Settings'),
-			'method'                => 'spacer',
-			'collapsible'           => 'true'
+		'reportit_csv_header' => array(
+			'friendly_name' => __('ReportIt Export Settings', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'reportit_csv_column_s'     => array(
-			'friendly_name'         => __('CSV Column Separator'),
-			'description'           => __('The column separator to be used for CSV exports.'),
-			'method'                => 'drop_array',
-			'array'                 => $csv_column_separator,
-			'default'               => '1',
+		'reportit_csv_column_s' => array(
+			'friendly_name' => __('CSV Column Separator', 'reportit'),
+			'description'   => __('The column separator to be used for CSV exports.', 'reportit'),
+			'method'        => 'drop_array',
+			'array'         => $csv_column_separator,
+			'default'       => '1',
 		),
-		'reportit_csv_decimal_s'    => array(
-			'friendly_name'         => __('CSV Decimal Separator'),
-			'description'           => __('The symbol indicating the end of the integer part and the beginning of the fractional part.'),
-			'method'                => 'drop_array',
-			'array'                 => $csv_decimal_separator,
-			'default'               => '1',
+		'reportit_csv_decimal_s' => array(
+			'friendly_name' => __('CSV Decimal Separator', 'reportit'),
+			'description'   => __('The symbol indicating the end of the integer part and the beginning of the fractional part.', 'reportit'),
+			'method'        => 'drop_array',
+			'array'         => $csv_decimal_separator,
+			'default'       => '1',
 		),
 	);
 
@@ -579,7 +585,7 @@ function reportit_show_tab() {
 	global $config;
 	reportit_check_upgrade();
 	if (api_user_realm_auth('view.php')) {
-		print '<a href="' . $config['url_path'] . 'plugins/reportit/view.php"><img src="' . $config['url_path'] . 'plugins/reportit/images/tab_reportit_' . (get_current_page() == 'view.php' ? 'down' : 'up'). '.png" alt="' . __('ReportIt') . '"></a>';
+		print '<a href="' . $config['url_path'] . 'plugins/reportit/view.php"><img src="' . $config['url_path'] . 'plugins/reportit/images/tab_reportit_' . (get_current_page() == 'view.php' ? 'down' : 'up'). '.png" alt="' . __('ReportIt', 'reportit') . '"></a>';
 	}
 }
 

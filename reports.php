@@ -134,43 +134,42 @@ function report_wizard() {
 function report_filter() {
 	global $item_rows;
 
-	html_start_box( __('Report Filters'), '100%', '', '3', 'center', 'reports.php?action=report_add');
+	html_start_box( __('Report Filters', 'reportit'), '100%', '', '3', 'center', 'reports.php?action=report_add');
 	?>
 	<tr class='even'>
 		<td>
 			<form id='form_reports' action='reports.php'>
-			<table class='filterTable'>
-				<tr>
-					<td>
-						<?php print __('Search');?>
-					</td>
-					<td>
-						<input type='text' id='filter' size='25' value='<?php print get_request_var('filter');?>'>
-					</td>
-					<td>
-						<?php print __('Reports');?>
-					</td>
-					<td>
-						<select id='rows' onChange='applyFilter()'>
-							<option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default');?></option>
-							<?php
-							if (cacti_sizeof($item_rows)) {
-								foreach ($item_rows as $key => $value) {
-									print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . $value . "</option>\n";
+				<table class='filterTable'>
+					<tr>
+						<td>
+							<?php print __('Search', 'reportit');?>
+						</td>
+						<td>
+							<input type='text' id='filter' size='25' value='<?php print get_request_var('filter');?>'>
+						</td>
+						<td>
+							<?php print __('Reports', 'reportit');?>
+						</td>
+						<td>
+							<select id='rows' onChange='applyFilter()'>
+								<option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default', 'reportit');?></option>
+								<?php
+								if (cacti_sizeof($item_rows)) {
+									foreach ($item_rows as $key => $value) {
+										print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . $value . "</option>";
+									}
 								}
-							}
-							?>
-						</select>
-					</td>
-					<td>
-						<input type='button' value='<?php print __esc_x('Button: use filter settings', 'Go');?>' id='refresh'>
-					</td>
-					<td>
-						<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear');?>' id='clear'>
-					</td>
-				</tr>
-			</table>
-			<input type='hidden' id='page' value='<?php print get_filter_request_var('page');?>'>
+								?>
+							</select>
+						</td>
+						<td>
+							<span>
+								<input type='button' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
+								<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>' id='clear'>
+							</span>
+						</td>
+					</tr>
+				</table>
 			</form>
 			<script type='text/javascript'>
 
@@ -222,41 +221,41 @@ function standard() {
 	$tmz         = (read_config_option('reportit_show_tmz') == 'on') ? '('.date('T').')' : '';
 	$enable_tmz  = read_config_option('reportit_use_tmz');
 
-/* ================= input validation and session storage ================= */
+	/* ================= input validation and session storage ================= */
 	$filters = array(
 		'rows' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'pageset' => true,
 			'default' => '-1'
-			),
+		),
 		'page' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '1'
-			),
+		),
 		'filter' => array(
 			'filter' => FILTER_CALLBACK,
 			'pageset' => true,
 			'default' => '',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_column' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'description',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_direction' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'ASC',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'owner' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '-1'
-			),
+		),
 		'template' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '-1'
-			),
+		),
 	);
 
 	validate_store_request_vars($filters, 'sess_reportit_reports');
@@ -351,55 +350,48 @@ function standard() {
 	$report_list = db_fetch_assoc($sql);
 
 	$desc_array = array(
-		'id' => array(
-			'display' => __('Id'),
-			'sort'    => 'ASC',
-			'align'   => 'left'
-		),
 		'description' => array(
-			'display' => __('Name'),
+			'display' => __('Name', 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'left'
+		),
+		'id' => array(
+			'display' => __('ID', 'reportit'),
+			'sort'    => 'ASC',
 		),
 		'nosort0' => array(
-			'display' => __("Period %s from - to", $tmz)
+			'display' => __("Period %s From - To", $tmz, 'reportit')
 		),
 		'state' => array(
 			'display' => __('State', 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'left'
 		),
 		'last_run' => array(
-			'display' => __('Last run %s', $tmz, 'reportit'),
+			'display' => __('Last Run %s', $tmz, 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'left'
 		),
 		'runtime' => array(
 			'display' => __('Runtime [s]', 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'right'
 		),
 		'public' => array(
-			'display' => __('Public'),
+			'display' => __('Public', 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'left'
 		),
 		'scheduled' => array(
-			'display' => __('Scheduled'),
+			'display' => __('Scheduled', 'reportit'),
 			'sort'    => 'ASC',
-			'align'   => 'left'
 		),
 		'ds_cnt' => array(
-			'display' => __('Data Items'),
+			'display' => __('Data Items', 'reportit'),
 			'sort'    => 'DESC',
-			'align'   => 'right'
 		),
 	);
 
 	/* start with HTML output */
 	report_filter();
 
-	$nav = html_nav_bar('reports.php?filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, sizeof($desc_array), __('Reports'), 'page', 'main');
+	$nav = html_nav_bar('reports.php?filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, sizeof($desc_array), __('Reports', 'reportit'), 'page', 'main');
+
 	print $nav;
 
 	form_start('reports.php');
@@ -410,33 +402,43 @@ function standard() {
 
 	if (cacti_sizeof($report_list)) {
 		foreach($report_list as $report) {
-			$link = '<a class="linkEditMain" href="' . htmlspecialchars('reports.php?action=report_edit&id=' . $report['id']) . '">';
+			$link = 'reports.php?action=report_edit&id=' . $report['id'];
 
-			form_alternate_row( 'line' . $report['id'], true );
-			form_selectable_cell($link . filter_value($report['id'], get_request_var('filter')) . '</a>', $report['id'], 'left' );
-			form_selectable_cell($link . filter_value($report['description'], get_request_var('filter')) . '</a>', $report['id'], 'left' );
+			form_alternate_row('line' . $report['id'], true);
+
+			form_selectable_cell(filter_value($report['description'], get_request_var('filter'), $link), $report['id']);
+			form_selectable_cell(filter_value($report['id'], get_request_var('filter'), $link), $report['id']);
 
 			if ($report['sliding']== true && $report['last_run'] == 0) {
 				$dates = rp_get_timespan($report['preset_timespan'], $report['present'], $enable_tmz);
+
 				form_selectable_cell(date(config_date_format(), strtotime($dates['start_date'])) . " - " . date(config_date_format(), strtotime($dates['end_date'])), $report['id']);
 			} else {
 				form_selectable_cell(($report['start_date'] == '0000-00-00' ? '00-00-0000' : date(config_date_format(), strtotime($report['start_date']))) . " - " . ($report['start_date'] == '0000-00-00' ? '00-00-0000' : date(config_date_format(), strtotime($report['end_date']))), $report['id']);
 			}
 
-			form_selectable_cell( $report_states[$report['state']], $report['id'] );
-			form_selectable_cell( (($report['last_run'] == '0000-00-00 00:00:00') ? __('n/a') : '<a class="linkEditMain" href="view.php?action=show_report&id=' . $report['id'] . '">' . $report['last_run'] . '</a>'), $report['id']);
-			form_selectable_cell( sprintf("%01.1f", $report['runtime']), $report['id'], 'center');
-			form_selectable_cell( html_check_icon($report['public']), $report['id'], 'center');
-			form_selectable_cell( html_check_icon($report['scheduled']), $report['id'], 'center');
+			form_selectable_cell($report_states[$report['state']], $report['id']);
+
+			if ($report['last_run'] == '0000-00-00 00:00:00') {
+				form_selectable_cell(__('N/A', 'reportit'), $report['id']);
+			} else {
+				$link = "view.php?action=show_report&id={$report['id']}";
+
+				form_selectable_cell(filter_value($report['last_run'], '', $link), $report['id']);
+			}
+
+			form_selectable_cell(sprintf("%01.1f", $report['runtime']), $report['id']);
+			form_selectable_cell(html_check_icon($report['public']), $report['id']);
+			form_selectable_cell(html_check_icon($report['scheduled']), $report['id']);
 
 			$link = $report['ds_cnt'] != NULL ? "rrdlist.php?&id={$report['id']}" : "items.php?&id={$report['id']}";
 
 			print "<td><a class='linkEditMain' href='$link'>" . html_sources_icon($report['ds_cnt'], __('Edit sources', 'reportit'), __('Add sources', 'reportit')) . '</a></td>';
 
 			if (!$report['locked'] && $report['state'] < 1) {
-				form_checkbox_cell("Select",$report["id"]);
+				form_checkbox_cell(__esc("Select %s", $report['description'], 'reportit'), $report["id"]);
 			} else {
-				print '<td align="center">' . html_lock_icon('on', __('Report has been locked')) . '</td>';
+				print '<td>' . html_lock_icon('on', __('Report has been locked', 'reportit')) . '</td>';
 			}
 
 			?>
@@ -444,14 +446,15 @@ function standard() {
 			<?php
 		}
 	} else {
-		print "<tr><td colspan='10'><em>" . __('No reports', 'reportit') . "</em></td></tr>\n";
+		print "<tr><td colspan='10'><em>" . __('No reports', 'reportit') . "</em></td></tr>";
 	}
 
 	html_end_box(true);
 
-	if ($total_rows > $rows) print $nav;
+	print $nav;
 
 	draw_actions_dropdown($report_actions);
+
 	form_end();
 }
 
@@ -516,7 +519,7 @@ function form_save() {
 	}
 
 	if (!re_owner()) {
-		die_html_custom_error(__('Not authorised'), true); //this should normally done by Cacti itself
+		die_html_custom_error(__('Not Authorized', 'reportit'), true); //this should normally done by Cacti itself
 	}
 
 	/* check for the type of saving if it was sent through the email tab */
@@ -954,19 +957,20 @@ function report_edit() {
 		$i = 0;
 
 		/* draw the tabs */
-		print "<div class='tabs'><nav><ul role='tablist'>\n";
+		print "<div class='tabs'><nav><ul role='tablist'>";
 
 		foreach (array_keys($tabs) as $tab_short_name) {
 			print "<li class='subTab'><a class='tab" . (($tab_short_name == $current_tab) ? " selected'" : "'") .
-				" href='" . htmlspecialchars($config['url_path'] .  'plugins/reportit/reports.php?action=report_edit&id=' . $id .
+				" href='" . html_escape($config['url_path'] .  'plugins/reportit/reports.php?action=report_edit&id=' . $id .
 				'&tab=' . $tab_short_name) .
-				"'>" . $tabs[$tab_short_name] . "</a></li>\n";
+				"'>" . $tabs[$tab_short_name] . "</a></li>";
 			$i++;
 		}
-		print "</ul></nav></div>\n";
+		print "</ul></nav></div>";
 	}
+
 	form_start('reports.php');
-	html_start_box(__('Report Configuration (%s) %s', $tabs[$current_tab], $header_label), '100%', '', '2', 'center', '');
+	html_start_box(__('Report Configuration (%s) %s', $tabs[$current_tab], $header_label, 'reportit'), '100%', '', '2', 'center', '');
 
 	switch(get_request_var('tab')) {
 	case 'presets':
@@ -1017,7 +1021,7 @@ function report_edit() {
 				print '</tr>';
 			}
 		} else {
-			print '<tr><td colspan="3"><em>' . __('No recipients found') . '</em></td></tr>';
+			print '<tr><td colspan="3"><em>' . __('No recipients found', 'reportit') . '</em></td></tr>';
 		}
 
 		break;
@@ -1077,13 +1081,13 @@ function report_edit() {
 				$('#main').html(data);
 				applySkin();
 
-				$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)');?>');
-				$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)');?>');
+				$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)', 'reportit');?>');
+				$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)', 'reportit');?>');
 			});
 		});
 
-		$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)');?>');
-		$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)');?>');
+		$('#report_email_address').attr('placeholder','<?php print __('Email address of a recipient (or comma separated list)', 'reportit');?>');
+		$('#report_email_recipient').attr('placeholder','<?php print __('[OPTIONAL] Name of a recipient (or comma separated list of names)', 'reportit');?>');
 	});
 
 	function dyn_general_tab() {
@@ -1284,20 +1288,20 @@ function form_actions() {
 
 	if (cacti_sizeof($reports)) {
 		if (get_request_var('drp_action') == '1') {
-			$section = '<p>' . __('Click \'Continue\' to Run the following Report:') . '</p>';
+			$section = '<p>' . __('Click \'Continue\' to Run the following Report:', 'reportit') . '</p>';
 		} elseif (get_request_var('drp_action') == '2') { //DELETE REPORT
-			$section = '<p>' . __('Click \'Continue\' to Delete the following Reports:') . '</p>';
+			$section = '<p>' . __('Click \'Continue\' to Delete the following Reports:', 'reportit') . '</p>';
 		} elseif (get_request_var('drp_action') == '3') { // DUPLICATE REPORT
-			$section = '<p>' . __('Click \'Continue\' to duplicate the following Report configurations.  You may also change the title format during this operation.') . '</p>';
-			$section .= '<p>' . __('Title Format:') . '</p>';
-			$section .= '<p>' . form_text_box('report_addition', __('<report_title> (1)'), '', '255', '30', 'text') .'</p>';
+			$section = '<p>' . __('Click \'Continue\' to duplicate the following Report configurations.  You may also change the title format during this operation.', 'reportit') . '</p>';
+			$section .= '<p>' . __('Title Format:', 'reportit') . '</p>';
+			$section .= '<p>' . form_text_box('report_addition', __('<report_title> (1)', 'reportit'), '', '255', '30', 'text') .'</p>';
 		}
 	}
 
 	$report_ids = array();
 	if ($reports === false || empty($reports)) {
-		print "<tr><td class='textArea'><span class='textError'>" . __('You must select at least one unlocked, not running, report.') . "</span>$reports_sql</td></tr>\n";
-		$save_html = "<input type='button' value='" . __('Cancel') . "' onClick='cactiReturnTo()'>";
+		print "<tr><td class='textArea'><span class='textError'>" . __('You must select at least one unlocked, not running, report.', 'reportit') . "</span>$reports_sql</td></tr>";
+		$save_html = "<input type='button' value='" . __('Cancel', 'reportit') . "' onClick='cactiReturnTo()'>";
 	} else {
 		print "<tr><td class='textArea'>$section</td></tr><tr><td>";
 		print '<ul>';
@@ -1307,7 +1311,7 @@ function form_actions() {
 		}
 		print '</ul>';
 		print '</td></tr>';
-		$save_html = "<input type='button' value='" . __('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' value='" . __('Continue') . "'>";
+		$save_html = "<input type='button' value='" . __('Cancel', 'reportit') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' value='" . __('Continue', 'reportit') . "'>";
 	}
 
 	print "<tr>

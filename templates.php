@@ -172,7 +172,7 @@ function template_wizard($action) {
 			);
 
 			form_start('templates.php?action=template_import_wizard');
-			html_start_box(__('Summary', 'reportit'), '90%', '', '2', 'center', '');
+			html_start_box(__('Summary', 'reportit'), '100%', '', '3', 'center', '');
 			html_header($header_array);
 
 			$compatible = false;
@@ -313,41 +313,38 @@ function template_filter() {
 	<tr class='even'>
 		<td>
 			<form id='form_templates' action='templates.php'>
-			<table class='filterTable'>
-				<tr>
-					<td>
-						<?php print __('Search', 'reportit');?>
-					</td>
-					<td>
-						<input type='text' id='filter' size='25' value='<?php print get_request_var('filter');?>'>
-					</td>
-					<td>
-						<?php print __('Templates', 'reportit');?>
-					</td>
-					<td>
-						<select id='rows' onChange='applyFilter()'>
-							<option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default', 'reportit');?></option>
-							<?php
-							if (cacti_sizeof($item_rows)) {
-							foreach ($item_rows as $key => $value) {
-								print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . $value . "</option>\n";
-							}
-							}
-							?>
-						</select>
-					</td>
-					<td>
-						<input id='refresh' type='button' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>'>
-					</td>
-					<td>
-						<input id='clear' type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>'>
-					</td>
-					<td>
-						<input id='import' type='button' value='<?php print __esc_x('Button: import button', 'Import', 'reportit');?>'>
-					</td>
-				</tr>
-			</table>
-			<input type='hidden' id='page' value='<?php print get_filter_request_var('page');?>'>
+				<table class='filterTable'>
+					<tr>
+						<td>
+							<?php print __('Search', 'reportit');?>
+						</td>
+						<td>
+							<input type='text' id='filter' size='25' value='<?php print get_request_var('filter');?>'>
+						</td>
+						<td>
+							<?php print __('Templates', 'reportit');?>
+						</td>
+						<td>
+							<select id='rows' onChange='applyFilter()'>
+								<option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default', 'reportit');?></option>
+								<?php
+								if (cacti_sizeof($item_rows)) {
+								foreach ($item_rows as $key => $value) {
+									print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . $value . "</option>\n";
+								}
+								}
+								?>
+							</select>
+						</td>
+						<td>
+							<span>
+								<input id='refresh' type='submit' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>'>
+								<input id='clear' type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>'>
+								<input id='import' type='button' value='<?php print __esc_x('Button: import button', 'Import', 'reportit');?>'>
+							</span>
+						</td>
+					</tr>
+				</table>
 			</form>
 			<script type='text/javascript'>
 
@@ -403,27 +400,27 @@ function standard() {
 			'filter' => FILTER_VALIDATE_INT,
 			'pageset' => true,
 			'default' => '-1'
-			),
+		),
 		'page' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '1'
-			),
+		),
 		'filter' => array(
 			'filter' => FILTER_CALLBACK,
 			'pageset' => true,
 			'default' => '',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_column' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'name',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_direction' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'ASC',
 			'options' => array('options' => 'sanitize_search_string')
-			)
+		)
 	);
 
 	validate_store_request_vars($filters, 'sess_reportit_templates');
@@ -459,75 +456,123 @@ function standard() {
 		$sql_limit");
 
 	$display_text = array(
-		'id'          => array('display' => __('Id', 'reportit'),               'align' => 'left', 'sort' => 'ASC', 'tip' => __('The internal identifier of this Report Template.', 'reportit')),
-		'name'        => array('display' => __('Name', 'reportit'),             'align' => 'left', 'sort' => 'ASC', 'tip' => __('The name of this Report Template.', 'reportit')),
-		'author'      => array('display' => __('Author', 'reportit'),           'align' => 'left', 'sort' => 'ASC', 'tip' => __('The Author of this Report Template.', 'reportit')),
-		'version'     => array('display' => __('Version', 'reportit'),          'align' => 'left', 'sort' => 'ASC', 'tip' => __('The version of this Report Template.', 'reportit')),
-		'nosort'      => array('display' => __('Data Template', 'reportit'),    'align' => 'left'),
-		'enabled'     => array('display' => __('Published', 'reporit'),         'align' => 'left'),
-		'nosort2'     => array('display' => __('Locked', 'reportit'),           'align' => 'left'),
-		'nosort3'     => array('display' => __('Measurands', 'reportit'),       'align' => 'left', 'sort' => 'ASC'),
-		'nosort4'     => array('display' => __('Variables', 'reportit'),        'align' => 'left', 'sort' => 'ASC'),
-		'reports'     => array('display' => __('Reports', 'reportit'),          'align' => 'left', 'sort' => 'ASC', 'tip' => __('The total number of reports using this report template.', 'reportit')),
+		'name' => array(
+			'display' => __('Name', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC',
+			'tip'     => __('The name of this Report Template.', 'reportit')
+		),
+		'id' => array(
+			'display' => __('ID', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC',
+			'tip'     => __('The internal identifier of this Report Template.', 'reportit')
+		),
+		'author' => array(
+			'display' => __('Author', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC',
+			'tip'     => __('The Author of this Report Template.', 'reportit')
+		),
+		'version' => array(
+			'display' => __('Version', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC',
+			'tip'     => __('The version of this Report Template.', 'reportit')
+		),
+		'nosort' => array(
+			'display' => __('Data Template', 'reportit'),
+			'align'   => 'left'
+		),
+		'enabled' => array(
+			'display' => __('Published', 'reporit'),
+			'align'   => 'left'
+		),
+		'nosort2' => array(
+			'display' => __('Locked', 'reportit'),
+			'align'   => 'left'
+		),
+		'nosort3' => array(
+			'display' => __('Measurands', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC'
+		),
+		'nosort4' => array(
+			'display' => __('Variables', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC'
+		),
+		'reports' => array(
+			'display' => __('Reports', 'reportit'),
+			'align'   => 'left',
+			'sort'    => 'ASC',
+			'tip'     => __('The total number of reports using this report template.', 'reportit')
+		),
 	);
 
-	$nav = html_nav_bar('templates.php?filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, __('Templates', 'reportit'), 'page', 'main');
+	$nav = html_nav_bar('templates.php?filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, cacti_sizeof($display_text)+1, __('Templates', 'reportit'), 'page', 'main');
 
 	template_filter();
 
 	print $nav;
 
 	form_start('templates.php');
+
 	html_start_box('', '100%', '', '2', 'center', '');
 
 	html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'));
 
 	if (cacti_sizeof($template_list)) {
 		foreach($template_list as $template) {
+			$link = 'templates.php?action=template_edit&id=' . $template['id'];
+
 			form_alternate_row('line' . $template['id'], true);
+
+			form_selectable_cell(filter_value($template['name'], get_request_var('filter'), $link), $template['id'], 'left');
 			form_selectable_cell($template['id'], $template['id']);
-			form_selectable_cell('<a class="linkEditMain" href="' . htmlspecialchars('templates.php?action=template_edit&id=' . $template['id']) . '" title="' . htmlspecialchars($template['description']) . '">' . filter_value($template['name'], get_request_var('filter')) . '</a>', $template['id'], 'left');
+
 			form_selectable_cell(filter_value($template['author'], get_request_var('filter')), $template['id'], 'left');
 			form_selectable_cell(filter_value($template['version'], get_request_var('filter')), $template['id'], 'left');
 
 			if (isset($list_of_data_templates[$template['data_template_id']])) {
-				form_selectable_cell('<a class="linkEditMain" href="' . htmlspecialchars(URL_PATH . 'data_templates.php?action=template_edit&id=' . $template['data_template_id']) . '">' . $list_of_data_templates[$template['data_template_id']] . '</a>', $template['id']);
+				$link = URL_PATH . 'data_templates.php?action=template_edit&id=' . $template['data_template_id'];
+
+				form_selectable_cell(filter_value($list_of_data_templates[$template['data_template_id']], '', $link), $template['id']);
 			} elseif (isset($known_data_templates[$template['data_template_id']])) {
-				form_selectable_cell("<span class='textWarning'>" . __('No matching data sources', 'reportit') . '</span>', $template['id']);
+				form_selectable_cell(__('No matching data sources', 'reportit'), $template['id'], '', 'textWarning');
 			} else {
-				form_selectable_cell("<span class='textError'>" . __('Data template not available', 'reportit') . '</span>', $template['id']);
+				form_selectable_cell(__('Data template not available', 'reportit'), $template['id'], '', 'textError');
 			}
 
 			form_selectable_cell(html_check_icon($template['enabled']), $template['id']);
 			form_selectable_cell(html_lock_icon($template['locked']), $template['id']);
 
 			$link = $template['measurands'] != NULL
-				? '<a class="linkEditMain" href="' . htmlspecialchars('measurands.php?id=' . $template['id']) . '">'
-				: '<a class="linkEditMain" href="' . htmlspecialchars('measurands.php?action=measurand_edit&template_id=' . $template['id']) . '">';
+				? '<a class="linkEditMain" href="' . html_escape('measurands.php?id=' . $template['id']) . '">'
+				: '<a class="linkEditMain" href="' . html_escape('measurands.php?action=measurand_edit&template_id=' . $template['id']) . '">';
 
-			form_selectable_cell($link . html_sources_icon($template['measurands'], __('Edit measurands'), __('Add measurands')) . '</a>', $template['id']);
+			form_selectable_cell($link . html_sources_icon($template['measurands'], __('Edit measurands', 'reportit'), __('Add measurands', 'reportit')) . '</a>', $template['id']);
 
 			$link = $template['variables'] != NULL
-				? '<a class="linkEditMain" href="' . htmlspecialchars('variables.php?id=' . $template['id']) . '">'
-				: '<a class="linkEditMain" href="' . htmlspecialchars('variables.php?action=measurand_edit&template_id=' . $template['id']) . '">';
+				? '<a class="linkEditMain" href="' . html_escape('variables.php?id=' . $template['id']) . '">'
+				: '<a class="linkEditMain" href="' . html_escape('variables.php?action=measurand_edit&template_id=' . $template['id']) . '">';
 
-			form_selectable_cell($link . html_sources_icon($template['variables'], __('Edit variables'), __('Add variables')) . '</a>', $template['id']);
+			form_selectable_cell($link . html_sources_icon($template['variables'], __('Edit variables', 'reportit'), __('Add variables', 'reportit')) . '</a>', $template['id']);
 
 			form_selectable_cell( $template['reports'] ? $template['reports'] : '-', $template['id']);
 			form_checkbox_cell($template['description'], $template['id']);
 			form_end_row();
 		}
 	} else {
-		print "<tr><td colspan='7'><em>" . __('No templates', 'reportit') . "</em></td></tr>";
+		print "<tr><td colspan='" . (cacti_sizeof($display_text)+1) . "'><em>" . __('No templates', 'reportit') . "</em></td></tr>";
 	}
 
 	html_end_box(true);
 
-	if (cacti_sizeof($template_list)) {
-		print $nav;
-	}
+	print $nav;
 
 	draw_actions_dropdown($template_actions);
+
 	form_end();
 }
 
@@ -669,7 +714,8 @@ function template_edit() {
 
 	if ($id) {
 		$template_data = db_fetch_row('SELECT *	FROM plugin_reportit_templates	WHERE id = ' . $id);
-		$header_label = __('Template Configuration [edit: %s]',$template_data['description'], 'reportit');
+
+		$header_label = __esc('Template Configuration [edit: %s]', $template_data['description'], 'reportit');
 	} else {
 		$template_data['id'] = 0;
 		$header_label = __('Template Configuration [new]', 'reportit');
@@ -718,7 +764,6 @@ function template_edit() {
 	form_save_button('templates.php');
 }
 
-
 function form_actions() {
 	global $template_actions, $config;
 
@@ -757,7 +802,7 @@ function form_actions() {
 
 				$template_data = db_fetch_row('SELECT * FROM plugin_reportit_templates WHERE id = ' . $selected_items[$i]);
 				$template_data['id'] = 0;
-				$template_data['description'] = str_replace(__('<template_title>'), $template_data['description'], get_request_var('template_addition'));
+				$template_data['description'] = str_replace(__('<template_title>', 'reportit'), $template_data['description'], get_request_var('template_addition'));
 				$template_id = sql_save($template_data, 'plugin_reportit_templates');
 
 				$old = array();
@@ -919,17 +964,17 @@ function form_actions() {
 			print __('WARNING: Every Report that belongs to these Templates will also be deleted!', 'reportit');
 
 			foreach($ds_list as $key => $value) {
-				print '<p>' . __('Template : %s', $key) . '</p>';
+				print '<p>' . __('Template: %s', $key, 'reportit') . '</p>';
 
 				if (is_array($ds_list[$key])) {
 					print '<ul>';
 					foreach($ds_list[$key] as $report_name => $value) {
-						print '<li>' . __('Report: %s', $value) . '</li>';
+						print '<li>' . __('Report: %s', $value, 'reportit') . '</li>';
 					}
 					print '</ul>';
 				} else {
 					print '<ul>';
-					print '<li>' . __('Report: <i>None</i>') . '</li>';
+					print '<li>' . __('Report: <i>None</i>', 'reportit') . '</li>';
 					print '</ul>';
 				}
 			}
@@ -954,7 +999,7 @@ function form_actions() {
 			}
 		}
 
-		print '<p>' . __('Title:') . '<br>';
+		print '<p>' . __('Title:', 'reportit') . '<br>';
 
 		form_text_box('template_addition', __('<template_title> (1)', 'reportit'), '', '255', '30', 'text');
 

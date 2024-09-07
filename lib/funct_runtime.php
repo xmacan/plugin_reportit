@@ -518,7 +518,7 @@ function transform(&$data, &$rrd_data, &$template) {
 	preg_match_all('/\S+/', $data, $data);
 	$zahl              = count($data[0]);
 	$last_timestamp    = $zahl - $rrd_data['ds_cnt'] - 1;
-	$rrd_data['start'] = substr($data[0][0],0,-1);
+	$rrd_data['start'] = substr($data[0][0], 0, -1);
 	$rrd_data['end']   = substr($data[0][$last_timestamp], 0, -1);
 
 	//The step is needed, so if we've only one timespan then do this:

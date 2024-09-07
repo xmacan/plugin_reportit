@@ -117,27 +117,27 @@ function standard() {
 			'filter' => FILTER_VALIDATE_INT,
 			'pageset' => true,
 			'default' => '-1'
-			),
+		),
 		'page' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '1'
-			),
+		),
 		'filter' => array(
 			'filter' => FILTER_CALLBACK,
 			'pageset' => true,
 			'default' => '',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_column' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'description',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_direction' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'ASC',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 	);
 
 	validate_store_request_vars($filters, 'sess_reportit_rrdlist');
@@ -178,7 +178,6 @@ function standard() {
 		$sql_order
 		$sql_limit");
 
-
 	$report_data = db_fetch_assoc_prepared('SELECT *
 		FROM plugin_reportit_reports
 		WHERE id = ?',
@@ -188,13 +187,13 @@ function standard() {
 
 	/* define subheader description */
 	$desc_array = array(
-		'id' => array(
-			'display' => __('ID', 'reportit'),
+		'name_cache' => array(
+			'display' => __('Data Item Name', 'reportit'),
 			'sort' => 'ASC',
 			'align' => 'left'
 		),
-		'name_cache' => array(
-			'display' => __('Data Item Name', 'reportit'),
+		'id' => array(
+			'display' => __('ID', 'reportit'),
 			'sort' => 'ASC',
 			'align' => 'left'
 		),
@@ -204,10 +203,10 @@ function standard() {
 			'align' => 'left'
 		),
 		'nosort1' => array(
-			'display' => __('Shifttime (from - to)', 'reportit')
+			'display' => __('Shifttime (From - To)', 'reportit')
 		),
 		'nosort2' => array(
-			'display' => __('Weekdays (from - to)', 'reportit')
+			'display' => __('Weekdays (From - To)', 'reportit')
 		),
 		'timezone' => array(
 			'display' => __('Time Zone', 'reportit'),
@@ -228,7 +227,7 @@ function standard() {
 					<td>
 						<?php print __('Search', 'reportit');?>
 					</td>
-					<td width='1'>
+					<td>
 						<input type='text' id='filter' size='25' value='<?php print get_request_var('filter');?>'>
 					</td>
 					<td>
@@ -247,18 +246,15 @@ function standard() {
 						</select>
 					</td>
 					<td>
-						<input type='button' value='<?php print __esc_x('Button: use filter settings', 'Go');?>' id='refresh'>
-					</td>
-					<td>
-						<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear');?>' id='clear'>
+						<span>
+							<input type='submit' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
+							<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>' id='clear'>
+						</span>
 					</td>
 				</tr>
 			</table>
-			<input type='hidden' name='page' value='<?php print get_request_var('page');?>'>
 		</form>
-		</td>
-	</tr>
-	<script type='text/javascript'>
+		<script type='text/javascript'>
 		function applyFilter() {
 			strURL = 'rrdlist.php?id=<?php print get_request_var('id');?>&header=false&filter='+escape($('#filter').val())+'&rows='+$('#rows').val();
 			loadPageNoHeader(strURL);
@@ -283,7 +279,9 @@ function standard() {
 				applyFilter();
 			});
 		});
-	</script>
+		</script>
+		</td>
+	</tr>
 	<?php
 
 	html_end_box();
@@ -291,29 +289,32 @@ function standard() {
 	$nav = html_nav_bar('rrdlist.php?id=' . get_request_var('id') . '&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, sizeof($desc_array), __('Data Items', 'reportit'), 'page', 'main');
 
 	print $nav;
+
 	form_start('rrdlist.php?id=' . get_request_var('id'));
+
 	html_start_box('', '100%', '', '3', 'center', '');
+
 	html_header_sort_checkbox($desc_array, get_request_var('sort_column'), get_request_var('sort_direction'), false, 'rrdlist.php?id=' . get_request_var('id'));
 
 	if (cacti_sizeof($rrdlist)) {
 		foreach($rrdlist as $rrd) {
 			form_alternate_row( 'line' . $rrd['id'], true );
-			form_selectable_cell( $rrd['id'], $rrd['id']);
+
 			if ($rrd['name_cache'] == NULL) {
 				form_selectable_cell(__('Does not exist anymore', 'reportit'), $rrd['id']);
 			} else {
-				form_selectable_cell("<a class='linkEditMain'
-						href='rrdlist.php?action=rrdlist_edit&id=" . $rrd['id'] . "&report_id=" . get_request_var('id') . "'>"
-						. filter_value($rrd['name_cache'], get_request_var('filter'))
-						. "</a>",
-						$rrd['id']);
+				$link = "rrdlist.php?action=rrdlist_edit&id=" . $rrd['id'] . "&report_id=" . get_request_var('id');
+
+				form_selectable_cell(filter_value($rrd['name_cache'], get_request_var('filter'), $link), $rrd['id']);
 			}
 
+			form_selectable_cell($rrd['id'], $rrd['id']);
 			form_selectable_cell($rrd['description'], $rrd['id']);
 			form_selectable_cell($rrd['start_time'] . ' - ' . $rrd['end_time'], $rrd['id']);
 			form_selectable_cell($rrd['start_day']  . ' - ' . $rrd['end_day'],  $rrd['id']);
 			form_selectable_cell($rrd['timezone'], $rrd['id']);
 			form_checkbox_cell(__('Select', 'reportit'), $rrd['id']);
+
 			form_end_row();
 		}
 	} else {
@@ -322,10 +323,10 @@ function standard() {
 
 	html_end_box(true);
 
-	if (cacti_sizeof($rrdlist)) {
-		print $nav;
-	}
+	print $nav;
+
 	draw_actions_dropdown($rrdlist_actions);
+
 	form_end();
 }
 

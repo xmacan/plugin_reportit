@@ -169,6 +169,7 @@ function html_calc_syntax($measurand_id, $template_id) {
 	global $rubrics;
 
 	$rubrics[__('Variables', 'reportit')] = get_possible_variables($template_id);
+
 	$dq_variables = array_flip(get_possible_data_query_variables($template_id));
 	$rubrics[__('Data Query Variables', 'reportit')] = $dq_variables;
 
@@ -178,35 +179,39 @@ function html_calc_syntax($measurand_id, $template_id) {
 	$output = '';
 	foreach ($rubrics as $key => $value) {
 		$output .= "<div style='line-height: 1.5em;'><b>$key:</b></div><div style='line-height: 1.5em;'>";
-		$measurand = false;
-		foreach ($value as $name => $properties) {
 
+		$measurand = false;
+
+		foreach ($value as $name => $properties) {
 			if ( $key == 'Interim Results') {
 				if ($measurand === false) {
 					$measurand = $name;
 				} else {
 					$temp = str_replace($measurand, '', $name);
+
 					if (strpos($temp, ':') !== 0 && strlen($name) !== 0 ) {
-						$output .='<br>';
+						$output .= '<br>';
 						$measurand = $name;
 					}
 				}
 			}
 
-			$title  = "<div class='header'>" . (isset($properties['title']) ? $properties['title'] : $name) . "</div>";
+			$title  = "<div class='header'>" . (isset($properties['title']) ? $properties['title'] : $name) . '</div>';
 
 			if (isset($properties['description'])) {
 				$title .= "<div class='content preformatted'>"
-				. "Description: " . $properties['description'] . "<br>"
-				. "Syntax:      " . $properties['syntax'] . "<br>"
-				. "Parameters:  " . $properties['params'] . "<br>"
-				. "Examples:    " . $properties['examples'] . "</div>";
+					. __("Description: %s", $properties['description'], 'reportit') . "<br>"
+					. __("Syntax:      %s", $properties['syntax'], 'reportit') . "<br>"
+					. __("Parameters:  %s", $properties['params'], 'reportit') . "<br>"
+					. __("Examples:    %s", $properties['examples'], 'reportit') . "</div>";
 			}
 
 	       	$output .= '<a id="' . $name . '" class="linkOverDark1" title="' . $title . '" onClick=add_to_calc("' . $name . '") style="cursor:pointer;">' . $name . "&nbsp;&nbsp;</a>";
 		}
-		$output .= "</div>";
+
+		$output .= '</div>';
 	}
+
 	return $output;
 }
 
@@ -377,7 +382,9 @@ function html_sources_icon($values, $title_on, $title_off) {
 	if (is_array($values)) {
 		$values = count($values);
 	}
+
 	$value_text = ($values == NULL ? '' :  ' (' . $values . ')');
 	$value_on = ($values == NULL ? '' : 'on');
+
 	return html_onoff_icon($values, 'fa-plus', $title_off, 'fa-wrench', $title_on) . $value_text;
 }

@@ -126,31 +126,31 @@ function standard() {
 			'filter' => FILTER_VALIDATE_INT,
 			'pageset' => true,
 			'default' => '-1'
-			),
+		),
 		'page' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '1'
-			),
+		),
 		'filter' => array(
 			'filter' => FILTER_CALLBACK,
 			'pageset' => true,
 			'default' => '',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_column' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'id',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'sort_direction' => array(
 			'filter' => FILTER_CALLBACK,
 			'default' => 'ASC',
 			'options' => array('options' => 'sanitize_search_string')
-			),
+		),
 		'host_id' => array(
 			'filter' => FILTER_VALIDATE_INT,
 			'default' => '-1'
-			)
+		)
 	);
 	$filters = api_plugin_hook_function('report_filters', $filters);
 
@@ -283,20 +283,26 @@ function standard() {
 	html_start_box('', '100%', '', '3', 'center', '');
 
 	$desc_array = array(
-		'id'                   => array('display' => __('ID', 'reportit'),              'sort' => 'ASC',  'align' => 'left'),
-		'name_cache'           => array('display' => __('Data Item Name', 'reportit'),  'sort' => 'ASC',  'align' => 'left'),
+		'id' => array(
+			'display' => __('ID', 'reportit'),
+			'sort' => 'ASC',
+			'align' => 'left'
+		),
+		'name_cache' => array('
+			display' => __('Data Item Name', 'reportit'),
+			'sort' => 'ASC',
+			'align' => 'left'
+		),
 	);
 
 	html_header_sort_checkbox($desc_array, get_request_var('sort_column'), get_request_var('sort_direction'), false, 'items.php?id=' . get_request_var('id'));
 
 	//Set preconditions
-	$i = 0;
-
 	if (cacti_sizeof($rrdlist)) {
 		foreach($rrdlist as $rrd) {
 			form_alternate_row('line' . $rrd['id'], true);
-			form_selectable_cell( $rrd['id'], $rrd['id']);
-			form_selectable_cell( filter_value($rrd['name_cache'], get_request_var('filter')), $rrd['id'], 'left');
+			form_selectable_cell($rrd['id'], $rrd['id']);
+			form_selectable_cell(filter_value($rrd['name_cache'], get_request_var('filter')), $rrd['id'], 'left');
 			form_checkbox_cell("Select",$rrd["id"]);
 		}
 	} else {
@@ -353,14 +359,13 @@ function items_filter($header_label) {
 						</select>
 					</td>
 					<td>
-						<input type='button' value='<?php print __esc_x('Button: use filter settings', 'Go');?>' id='refresh'>
-					</td>
-					<td>
-						<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear');?>' id='clear'>
+						<span>
+							<input type='submit' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
+							<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>' id='clear'>
+						</span>
 					</td>
 				</tr>
 			</table>
-			<input type='hidden' id='page' value='<?php print get_filter_request_var('page');?>'>
 		</form>
 		<script type='text/javascript'>
 
@@ -371,11 +376,13 @@ function items_filter($header_label) {
 				'&rows='+$('#rows').val()+
 				'&page='+$('#page').val()+
 				'&header=false';
+
 			loadPageNoHeader(strURL);
 		}
 
 		function clearFilter() {
 			strURL = 'items.php?id=<?php print get_request_var('id');?>&clear=1&header=false';
+
 			loadPageNoHeader(strURL);
 		}
 

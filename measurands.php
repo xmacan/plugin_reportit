@@ -84,10 +84,10 @@ function standard() {
 
 	//Number of measurands
 	$number_of_measurands = count($measurands_list);
-	$header_label	= __("Measurands [Template: <a class='linkEditMain' href='templates.php?action=template_edit&id=" . get_request_var('id') . "'>%s</a>] [%d]", $template_name, $number_of_measurands, 'reportit');
+	$header_label = __("Measurands [Template: <a class='pic' href='templates.php?action=template_edit&id=" . get_request_var('id') . "'>%s</a>] [%d]", $template_name, $number_of_measurands, 'reportit');
 
 	form_start('measurands.php');
-	html_start_box($header_label, '100%', '', '2', 'center', 'measurands.php?action=measurand_edit&template_id=' . get_request_var('id'));
+	html_start_box($header_label, '100%', '', '3', 'center', 'measurands.php?action=measurand_edit&template_id=' . get_request_var('id'));
 
 	$display_text = array(
 		__('Name', 'reportit'),
@@ -103,19 +103,23 @@ function standard() {
 
 	if (cacti_sizeof($measurands_list)) {
 		foreach($measurands_list as $measurand) {
+			$link = "measurands.php?action=measurand_edit&id=" . $measurand['id'];
+
 			form_alternate_row('line' . $measurand['id'], true);
-			form_selectable_cell("<a class='linkEditMain' href='measurands.php?action=measurand_edit&id=" . $measurand['id'] . "'>" . $measurand['description'] . '</a>', $measurand['id']);
+
+			form_selectable_cell(filter_value($measurand['description'], '', $link), $measurand['id']);
 			form_selectable_cell($measurand['abbreviation'], $measurand['id']);
 			form_selectable_cell($measurand['unit'], $measurand['id']);
 			form_selectable_cell($consolidation_functions[$measurand['cf']], $measurand['id']);
-			form_selectable_cell( ($measurand['visible'] ? '<i class="fa fa-check" aria-hidden="true"></i>' : '<i class="fa fa-times" aria-hidden="true"></i>'), $measurand['id']);
-			form_selectable_cell( ($measurand['spanned'] ? '<i class="fa fa-check" aria-hidden="true"></i>' : '<i class="fa fa-times" aria-hidden="true"></i>'), $measurand['id']);
+			form_selectable_cell(($measurand['visible'] ? '<i class="fa fa-check" aria-hidden="true"></i>' : '<i class="fa fa-times" aria-hidden="true"></i>'), $measurand['id']);
+			form_selectable_cell(($measurand['spanned'] ? '<i class="fa fa-check" aria-hidden="true"></i>' : '<i class="fa fa-times" aria-hidden="true"></i>'), $measurand['id']);
 			form_selectable_cell($measurand['calc_formula'], $measurand['id']);
 			form_checkbox_cell($measurand['description'], $measurand['id']);
+
 			form_end_row();
 		}
 	} else {
-		print '<tr><td colspan="8"><em>' . __('No Measurands Found', 'reportit') . '</em></td></tr>';
+		print '<tr><td colspan="' . (cacti_sizeof($display_text)+1) . '"><em>' . __('No Measurands Found', 'reportit') . '</em></td></tr>';
 	}
 
 	$form_array = array(
@@ -135,6 +139,7 @@ function standard() {
 	html_end_box(true);
 
 	draw_actions_dropdown($measurand_actions, 'measurands.php');
+
 	form_end();
 }
 
@@ -267,117 +272,117 @@ function measurand_edit() {
 			WHERE id = ?',
 			array(get_request_var('id')));
 
-		$header_label   = __('Measurand Configuration [edit: %s]', $measurand_data['description'], 'reportit');
+		$header_label = __('Measurand Configuration [edit: %s]', $measurand_data['description'], 'reportit');
 	} else {
-		$header_label   = __('Measurand Configuration [new]', 'reportit');
+		$header_label = __('Measurand Configuration [new]', 'reportit');
 	}
 
 	$measurand_id = (isset_request_var('id') ? get_request_var('id') : '0');
 	$template_id  = (isset_request_var('template_id') ? get_request_var('template_id') : $measurand_data['template_id']);
 
 	$form_array = array(
-		'id'				=> array(
-			'method'			=> 'hidden_zero',
-			'value'				=> $measurand_id
+		'id' => array(
+			'method' => 'hidden_zero',
+			'value'  => $measurand_id
 		),
-		'template_id'		=> array(
-			'method'			=> 'hidden_zero',
-			'value'				=> $template_id
+		'template_id' => array(
+			'method' => 'hidden_zero',
+			'value'  => $template_id
 		),
-		'measurand_header'	=> array(
-			'friendly_name'		=> __('General', 'reportit'),
-			'method'			=> 'spacer',
-			'collapsible' 		=> 'true'
+		'measurand_header' => array(
+			'friendly_name' => __('General', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'measurand_description'	=> array(
-			'friendly_name'		=> __('Description', 'reportit'),
-			'description'		=> __('The explanation given to this measurand. This will be shown as legend within exports as well as a tooltip within the presentation of a report itself.', 'reportit'),
-			'method'			=> 'textbox',
-			'max_length'		=> '255',
-			'value'				=> (isset($measurand_data['description']) ? $measurand_data['description'] : '')
+		'measurand_description' => array(
+			'friendly_name' => __('Description', 'reportit'),
+			'description'   => __('The explanation given to this measurand. This will be shown as legend within exports as well as a tooltip within the presentation of a report itself.', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '255',
+			'value'         => (isset($measurand_data['description']) ? $measurand_data['description'] : '')
 		),
-		'measurand_abbreviation'=> array(
-			'friendly_name'		=> __('Abbreviation', 'reportit'),
-			'description'		=> __('Define a unique abbreviation for this measurand with max. 8 letters/numbers.', 'reportit'),
-			'method'			=> 'textbox',
-			'max_length'		=> '10',
-			'value'				=> (isset($measurand_data['abbreviation']) ? $measurand_data['abbreviation'] : '')
+		'measurand_abbreviation' => array(
+			'friendly_name' => __('Abbreviation', 'reportit'),
+			'description'   => __('Define a unique abbreviation for this measurand with max. 8 letters/numbers.', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '10',
+			'value'         => (isset($measurand_data['abbreviation']) ? $measurand_data['abbreviation'] : '')
 		),
-		'measurand_unit'	=> array(
-			'friendly_name'		=> __('Unit', 'reportit'),
-			'description'		=> __('The unit given to this measurand. e.g. \'Bits/s\'', 'reportit'),
-			'method'			=> 'textbox',
-			'max_length'		=> '100',
-			'value'				=> (isset($measurand_data['unit']) ? $measurand_data['unit'] : '')
+		'measurand_unit' => array(
+			'friendly_name' => __('Unit', 'reportit'),
+			'description'   => __('The unit given to this measurand. e.g. \'Bits/s\'', 'reportit'),
+			'method'        => 'textbox',
+			'max_length'    => '100',
+			'value'         => (isset($measurand_data['unit']) ? $measurand_data['unit'] : '')
 		),
-		'measurand_cf'		=> array(
-			'friendly_name'		=> __('Consolidation function', 'reportit'),
-			'description'		=> __('The name of the consolidation function to define which CDPs should be read out.', 'reportit'),
-			'method'			=> 'drop_array',
-			'default'			=> '0',
-			'value'				=> (isset($measurand_data['cf']) ? $measurand_data['cf'] : ''),
-			'array'				=> $consolidation_functions
+		'measurand_cf' => array(
+			'friendly_name' => __('Consolidation function', 'reportit'),
+			'description'   => __('The name of the consolidation function to define which CDPs should be read out.', 'reportit'),
+			'method'        => 'drop_array',
+			'default'       => '0',
+			'value'         => (isset($measurand_data['cf']) ? $measurand_data['cf'] : ''),
+			'array'         => $consolidation_functions
 		),
-		'measurand_visible'	=> array(
-			'friendly_name'		=> __('Visible', 'reportit'),
-			'description'		=> __('Choose \'enable\' if this measurand should be become part of the final report output. Leave it unflagged if this measurands will only be used as an auxiliary calculation.', 'reportit'),
-			'method'			=> 'checkbox',
-			'value'				=> ((isset($measurand_data['visible']) && $measurand_data['visible'] == true) ? 'on' : ''),
-			'form_id'			=> (isset_request_var('id') ? get_request_var('id') : ''),
-			'default'			=> 'on',
+		'measurand_visible' => array(
+			'friendly_name' => __('Visible', 'reportit'),
+			'description'   => __('Choose \'enable\' if this measurand should be become part of the final report output. Leave it unflagged if this measurands will only be used as an auxiliary calculation.', 'reportit'),
+			'method'        => 'checkbox',
+			'value'         => ((isset($measurand_data['visible']) && $measurand_data['visible'] == true) ? 'on' : ''),
+			'form_id'       => (isset_request_var('id') ? get_request_var('id') : ''),
+			'default'       => 'on',
 
 		),
-		'measurand_spanned'	=> array(
-			'friendly_name'		=> __('Separate', 'reportit'),
-			'description'		=> __('Choose \'enable\' if this measurand will only have one result in total instead of one for every Data Source Item. It\'s result<br>will be shown separately. Use this option in combination with "Visible" = "off" if you are looking for a measurand keeping an interim result only that should be reused within the calculation of other measurands without being visible for end users.', 'reportit'),
-			'method'			=> 'checkbox',
-			'value'				=> ((isset($measurand_data['spanned']) && $measurand_data['spanned'] == true) ? 'on' : ''),
-			'form_id'			=> (isset_request_var('id') ? get_request_var('id') : ''),
-			'default'			=> '',
+		'measurand_spanned' => array(
+			'friendly_name' => __('Separate', 'reportit'),
+			'description'   => __('Choose \'enable\' if this measurand will only have one result in total instead of one for every Data Source Item. It\'s result<br>will be shown separately. Use this option in combination with "Visible" = "off" if you are looking for a measurand keeping an interim result only that should be reused within the calculation of other measurands without being visible for end users.', 'reportit'),
+			'method'        => 'checkbox',
+			'value'         => ((isset($measurand_data['spanned']) && $measurand_data['spanned'] == true) ? 'on' : ''),
+			'form_id'       => (isset_request_var('id') ? get_request_var('id') : ''),
+			'default'       => '',
 
 		),
-		'measurand_header2'	=> array(
-			'friendly_name'		=> __('Formatting', 'reportit'),
-			'method'			=> 'spacer',
-			'collapsible' 		=> 'true'
+		'measurand_header2' => array(
+			'friendly_name' => __('Formatting', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true'
 		),
-		'measurand_type'=> array(
-			'friendly_name'		=> __('Type', 'reportit'),
-			'method'			=> 'drop_array',
-			'array'				=> $type_specifier,
-			'description'		=> __('Defines as what type the data should be treated as.', 'reportit'),
-			'value'				=> (isset($measurand_data['data_type']) ? $measurand_data['data_type'] : '1' )
+		'measurand_type' => array(
+			'friendly_name' => __('Type', 'reportit'),
+			'method'        => 'drop_array',
+			'array'         => $type_specifier,
+			'description'   => __('Defines as what type the data should be treated as.', 'reportit'),
+			'value'         => (isset($measurand_data['data_type']) ? $measurand_data['data_type'] : '1' )
 		),
-		'measurand_precision'=> array(
-			'friendly_name'		=> __('Precision', 'reportit'),
-			'description'		=> __('Defines how many decimal digits should be displayed for floating-point numbers.', 'reportit'),
-			'method'			=> 'drop_array',
-			'array'				=> $precision,
-			'value'				=> (isset($measurand_data['data_precision']) ? $measurand_data['data_precision'] : '2' )
+		'measurand_precision' => array(
+			'friendly_name' => __('Precision', 'reportit'),
+			'description'   => __('Defines how many decimal digits should be displayed for floating-point numbers.', 'reportit'),
+			'method'        => 'drop_array',
+			'array'         => $precision,
+			'value'         => (isset($measurand_data['data_precision']) ? $measurand_data['data_precision'] : '2' )
 		),
-		'measurand_rounding'=> array(
-			'friendly_name'		=> __('Prefixes', 'reportit'),
-			'description'		=> __('Choose the type of prefix being used to format the result. With the use of decimal prefixes \'1024\' will be formatted to \'1.024k\' while the binary prefixes option returns \'1ki\'. Select \'off\' to display the raw data, here \'1024\'.', 'reportit'),
-			'method'			=> 'drop_array',
-			'array'				=> $rounding,
-			'value'				=> (isset($measurand_data['rounding']) ? $measurand_data['rounding'] : '2' )
+		'measurand_rounding' => array(
+			'friendly_name' => __('Prefixes', 'reportit'),
+			'description'   => __('Choose the type of prefix being used to format the result. With the use of decimal prefixes \'1024\' will be formatted to \'1.024k\' while the binary prefixes option returns \'1ki\'. Select \'off\' to display the raw data, here \'1024\'.', 'reportit'),
+			'method'        => 'drop_array',
+			'array'         => $rounding,
+			'value'         => (isset($measurand_data['rounding']) ? $measurand_data['rounding'] : '2' )
 		),
-		'measurand_header3'	=> array(
-			'friendly_name'		=> __('Formula', 'reportit'),
-			'method'			=> 'spacer',
-			'collapsible' 		=> 'true',
+		'measurand_header3' => array(
+			'friendly_name' => __('Formula', 'reportit'),
+			'method'        => 'spacer',
+			'collapsible'   => 'true',
 		),
-		'measurand_formula'	=> array(
-			'friendly_name'		=> __('Calculation Formula', 'reportit'),
-			'description'		=> __('The mathematical definition of this measurand. Allowed are all combinations of operators and operands listed below following the rules of mathematics. Use round and square brackets to signify complex terms and the order of operations.', 'reportit'),
-			'method' 			=> 'custom',
-			'value'				=> "<textarea aria-multiline='true' cols='60' rows='5' id='measurand_formula' name='measurand_formula'>" . (isset($measurand_data['calc_formula']) ? $measurand_data['calc_formula'] : "" ) . '</textarea>'
+		'measurand_formula' => array(
+			'friendly_name' => __('Calculation Formula', 'reportit'),
+			'description'   => __('The mathematical definition of this measurand. Allowed are all combinations of operators and operands listed below following the rules of mathematics. Use round and square brackets to signify complex terms and the order of operations.', 'reportit'),
+			'method'        => 'custom',
+			'value'         => "<textarea aria-multiline='true' cols='60' rows='5' id='measurand_formula' name='measurand_formula'>" . (isset($measurand_data['calc_formula']) ? $measurand_data['calc_formula'] : "" ) . '</textarea>'
 		),
-		'measurand_ops_and_opds'=> array(
-			'friendly_name'		=> __('Operators & Operands', 'reportit'),
-			'description'		=> __('Click on one of the listed operators or operand to append them to your calucalion formula. The tooltip will show you additional information like description, return value, arguments and usage.', 'reportit'),
-			'method' 			=> 'custom',
-			'value'				=> html_calc_syntax($measurand_id, $template_id)
+		'measurand_ops_and_opds' => array(
+			'friendly_name' => __('Operators & Operands', 'reportit'),
+			'description'   => __('Click on one of the listed operators or operand to append them to your calucalion formula. The tooltip will show you additional information like description, return value, arguments and usage.', 'reportit'),
+			'method'        => 'custom',
+			'value'         => html_calc_syntax($measurand_id, $template_id)
 		),
 	);
 
@@ -397,6 +402,15 @@ function measurand_edit() {
 		}
 	}
 
+	function add_to_calc(name) {
+		fieldId = document.getElementById('measurand_formula');
+		old = fieldId.value;
+		fieldId.value = old + name;
+		fieldId.focus();
+		fieldId.value = fieldId.value;
+		return false;
+	}
+
 	$(function(){
 		$('#measurand_type').change(function() {
 			change_data_type();
@@ -404,15 +418,14 @@ function measurand_edit() {
 
 		/* initiate settings */
 		change_data_type();
-
 	});
 	</script>
 
 	<?php
 
 	form_start('measurands.php');
-	html_start_box($header_label, '100%', '', '2', 'center', '');
 
+	html_start_box($header_label, '100%', '', '2', 'center', '');
 
 	draw_edit_form(
 		array(
@@ -431,27 +444,8 @@ function measurand_edit() {
 	form_save_button('measurands.php?id=' . $template_id);
 	//form_end();
 
-
-
 	//Define layer
 	print '<div id="Tooltip"></div>';
-
-	//A little bit of java
-	?>
-	<script type='text/javascript'>
-
-
-	function add_to_calc(name) {
-		fieldId = document.getElementById('measurand_formula');
-		old = fieldId.value;
-		fieldId.value = old + name;
-		fieldId.focus();
-		fieldId.value = fieldId.value;
-		return false;
-	}
-
-	</script>
-	<?php
 }
 
 function form_actions() {
@@ -513,9 +507,11 @@ function form_actions() {
 		if (is_array($ds_list)) {
 			print '<p>' . __('List of selected measurands:', 'reportit') . '</p>';
 			print '<ul>';
+
 			foreach($ds_list as $key => $value) {
 				print '<li>' . __('Measurand: %s', $key, 'reportit') . '</li>';
 			}
+
 			print '</ul>';
 		}
 
