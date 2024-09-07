@@ -569,7 +569,9 @@ function standard() {
 
 	html_end_box(true);
 
-	print $nav;
+	if ($total_rows > $rows) {
+		print $nav;
+	}
 
 	draw_actions_dropdown($template_actions);
 

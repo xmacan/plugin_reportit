@@ -110,7 +110,8 @@ $tabs = array(
 	'general' => __('General', 'reportit'),
 	'presets' => __('Data Item Presets', 'reportit'),
 	'email'   => __('Email', 'reportit'),
-	'admin'   => __('Administration', 'reportit')
+	'admin'   => __('Administration', 'reportit'),
+	//'items'   => __('Data Items', 'reportit')
 );
 
 // $shifttime		- array, for dropdown menu
@@ -344,8 +345,8 @@ if (read_config_option('reportit_use_tmz')) {
 }
 $form_array_presets_2 = array(
 	'host_template_id' => array(
-		'friendly_name' => __('Host Template Filter (optional)', 'reportit'),
-		'description' => __('Use those data items only, which belong to hosts of this host template.<br>Select \'None\' (default) to deactivate this filter setting.', 'reportit'),
+		'friendly_name' => __('Device Template Filter (optional)', 'reportit'),
+		'description' => __('Use those data items only, which belong to Devices of this Device Template.<br>Select \'None\' (default) to deactivate this filter setting.', 'reportit'),
 		'method' => 'drop_sql',
 		'sql' => 'SELECT id,name FROM host_template ORDER BY name',
 		'none_value' => 'None',

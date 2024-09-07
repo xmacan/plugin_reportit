@@ -164,7 +164,7 @@ function report_filter() {
 						</td>
 						<td>
 							<span>
-								<input type='button' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
+								<input type='submit' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
 								<input type='button' value='<?php print __esc_x('Button: reset filter settings', 'Clear', 'reportit');?>' id='clear'>
 							</span>
 						</td>
@@ -451,7 +451,9 @@ function standard() {
 
 	html_end_box(true);
 
-	print $nav;
+	if ($total_rows > $rows) {
+		print $nav;
+	}
 
 	draw_actions_dropdown($report_actions);
 
@@ -930,7 +932,6 @@ function report_edit() {
 
 	/* start with HTML output */
 	if ($id != 0) {
-
 		/* built 'create links' */
 		$links[] = array('href' => 'items.php?id=' . $id, 'text' => __('Add Data Items', 'reportit'));
 		html_blue_link($links, $id);
@@ -951,7 +952,7 @@ function report_edit() {
 	}
 
 	/* draw the categories tabs on the top of the page */
-	$current_tab = get_request_var('tab');
+	$current_tab = get_nfilter_request_var('tab');
 
 	if (cacti_sizeof($tabs)) {
 		$i = 0;
@@ -966,84 +967,88 @@ function report_edit() {
 				"'>" . $tabs[$tab_short_name] . "</a></li>";
 			$i++;
 		}
+
 		print "</ul></nav></div>";
 	}
 
 	form_start('reports.php');
 	html_start_box(__('Report Configuration (%s) %s', $tabs[$current_tab], $header_label, 'reportit'), '100%', '', '2', 'center', '');
 
-	switch(get_request_var('tab')) {
-	case 'presets':
-		draw_edit_form(
-			array(
-				'config' => array('no_form_tag'=> true),
-				'fields' => inject_form_variables($form_array_presets, $rrdlist_data, $report_data)
-			)
-		);
-
-		break;
-	case 'admin':
-		draw_edit_form(
-			array(
-				'config' => array('no_form_tag'=> true),
-				'fields' => inject_form_variables($form_array_admin, $report_data)
-			)
-		);
-
-		break;
-	case 'email':
-		draw_edit_form(
-			array(
-				'config' => array('no_form_tag'=> true),
-				'fields' => inject_form_variables($form_array_email, $report_data)
-			)
-		);
-
-		html_end_box();
-
-		html_start_box('Associated Recipients', '100%', '', '3', 'center', '');
-
-		$display_text = array(
-			'name' => array('display' => __('Name', 'reportit'), 'width' => '50%'),
-			'email' => array('display' => __('Email', 'reportit')),
-			'action' => array('display' => __('Action', 'reportit'))
-		);
-
-		html_header($display_text);
-
-		if (cacti_sizeof($report_recipients)) {
-			foreach ($report_recipients as $recipient) {
-				form_alternate_row();
-				print '<td>' . $recipient['name'] . '</td>';
-				print '<td>' . $recipient['email'] . '</td>';
-				print '<td class="right">';
-				print '<a class="deletequery fa fa-times" href="reports.php?action=remove&id=' . get_request_var('id') . '&rec=' . $recipient['id'] . '"></a></td>';
-				print '</tr>';
-			}
-		} else {
-			print '<tr><td colspan="3"><em>' . __('No recipients found', 'reportit') . '</em></td></tr>';
-		}
-
-		break;
-	default:
-		draw_edit_form(
-			array(
-				'config' => array('no_form_tag'=> true),
-				'fields' => inject_form_variables($form_array_general, $report_data)
-			)
-		);
-
-		$template_variables = html_report_variables($id, $template_id );
-
-		/* draw input fields for variables */
-		if ($template_variables !== false) {
+	switch(get_nfilter_request_var('tab')) {
+		case 'presets':
 			draw_edit_form(
 				array(
 					'config' => array('no_form_tag'=> true),
-					'fields' => $template_variables
+					'fields' => inject_form_variables($form_array_presets, $rrdlist_data, $report_data)
 				)
 			);
-		}
+
+			break;
+		case 'admin':
+			draw_edit_form(
+				array(
+					'config' => array('no_form_tag'=> true),
+					'fields' => inject_form_variables($form_array_admin, $report_data)
+				)
+			);
+
+			break;
+		case 'email':
+			draw_edit_form(
+				array(
+					'config' => array('no_form_tag'=> true),
+					'fields' => inject_form_variables($form_array_email, $report_data)
+				)
+			);
+
+			html_end_box();
+
+			html_start_box('Associated Recipients', '100%', '', '3', 'center', '');
+
+			$display_text = array(
+				'name' => array('display' => __('Name', 'reportit'), 'width' => '50%'),
+				'email' => array('display' => __('Email', 'reportit')),
+				'action' => array('display' => __('Action', 'reportit'))
+			);
+
+			html_header($display_text);
+
+			if (cacti_sizeof($report_recipients)) {
+				foreach ($report_recipients as $recipient) {
+					form_alternate_row();
+					print '<td>' . $recipient['name'] . '</td>';
+					print '<td>' . $recipient['email'] . '</td>';
+					print '<td class="right">';
+					print '<a class="deletequery fa fa-times" href="reports.php?action=remove&id=' . get_request_var('id') . '&rec=' . $recipient['id'] . '"></a></td>';
+					print '</tr>';
+				}
+			} else {
+				print '<tr><td colspan="3"><em>' . __('No recipients found', 'reportit') . '</em></td></tr>';
+			}
+
+			break;
+		case 'items':
+
+			break;
+		default:
+			draw_edit_form(
+				array(
+					'config' => array('no_form_tag'=> true),
+					'fields' => inject_form_variables($form_array_general, $report_data)
+				)
+			);
+
+			$template_variables = html_report_variables($id, $template_id );
+
+			/* draw input fields for variables */
+			if ($template_variables !== false) {
+				draw_edit_form(
+					array(
+						'config' => array('no_form_tag'=> true),
+						'fields' => $template_variables
+					)
+				);
+			}
 	}
 
 	html_end_box();
@@ -1146,8 +1151,10 @@ function report_edit() {
 function form_actions() {
 	global $report_actions, $config;
 
+	get_filter_request_var('drp_action');
+
 	if (isset_request_var('selected_items')) {
-		$selected_items = sanitize_unserialize_selected_items(get_request_var('selected_items'));
+		$selected_items = sanitize_unserialize_selected_items(get_nfilter_request_var('selected_items'));
 
 		//For running report jump to run.php!
 		if (get_request_var('drp_action') == '1') { // RUNNING REPORT
@@ -1252,7 +1259,7 @@ function form_actions() {
 	}
 
 	//Set preconditions
-	$limit_state = (get_request_var('drp_action') == 1 ? ' LIMIT 1' : '');
+	$limit_state = (get_filter_request_var('drp_action') == 1 ? ' LIMIT 1' : '');
 
 	$report_ids = array();
 	foreach($_POST as $key => $value) {

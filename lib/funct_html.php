@@ -199,14 +199,14 @@ function html_calc_syntax($measurand_id, $template_id) {
 			$title  = "<div class='header'>" . (isset($properties['title']) ? $properties['title'] : $name) . '</div>';
 
 			if (isset($properties['description'])) {
-				$title .= "<div class='content preformatted'>"
+				$title .= "<div class='content preformatted'><br>"
 					. __("Description: %s", $properties['description'], 'reportit') . "<br>"
 					. __("Syntax:      %s", $properties['syntax'], 'reportit') . "<br>"
 					. __("Parameters:  %s", $properties['params'], 'reportit') . "<br>"
 					. __("Examples:    %s", $properties['examples'], 'reportit') . "</div>";
 			}
 
-	       	$output .= '<a id="' . $name . '" class="linkOverDark1" title="' . $title . '" onClick=add_to_calc("' . $name . '") style="cursor:pointer;">' . $name . "&nbsp;&nbsp;</a>";
+	       	$output .= '<a id="' . $name . '" class="linkOverDark1 reportItHover" data-title="' . base64_encode($title) . '" onClick=add_to_calc("' . $name . '") style="cursor:pointer;">' . $name . "&nbsp;&nbsp;</a>";
 		}
 
 		$output .= '</div>';

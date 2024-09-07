@@ -26,7 +26,7 @@
 
 $rrdlist_actions = array(
 	1 => __('Delete', 'reportit'),
-	2 => __('Copy settings to all', 'reportit')
+	2 => __('Copy Settings to All', 'reportit')
 );
 
 $rrdadd_actions = array(

@@ -64,7 +64,7 @@ function calculation() {
 	$number_of_errors	= 0;
 	$runtime			= '';
 
-	locked(my_template(get_request_var('id')));
+	locked(my_template(get_filter_request_var('id')));
 
 	$id = get_request_var('id');
 	$_SESSION['run'] = '0';

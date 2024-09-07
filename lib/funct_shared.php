@@ -802,13 +802,16 @@ function config_date_format($no_time=true) {
 
 
 /* ********************* New functions ********************************* */
-
 function debug(&$value, $msg = '', $fmsg = '') {
+	if (!defined('REPORTIT_DEBUG')) {
+		return;
+	}
 
-	if (!defined('REPORTIT_DEBUG')) return;
 	get_mem_usage();
 
-	if ($msg != '') print "\n\t\t******* $msg *******\n";
+	if ($msg != '') {
+		print "\n\t\t******* $msg *******\n";
+	}
 
 	if (is_array($value)) {
 		if ($fmsg == '') {
@@ -826,9 +829,9 @@ function debug(&$value, $msg = '', $fmsg = '') {
 	}
 }
 
-
 function get_report_setting($report_id, $column){
 	$sql = "SELECT $column FROM plugin_reportit_reports WHERE id = $report_id";
+
 	return db_fetch_cell($sql);
 }
 
@@ -844,7 +847,6 @@ function get_graph_config_option($config_name, $user_id){
 }
 
 function auto_rounding(&$values, $rounding, $order){
-
 	$threshold = 0.5;
 	$base = ($rounding == 2) ? 1000 : 1024;
 
@@ -866,18 +868,19 @@ function auto_rounding(&$values, $rounding, $order){
 	foreach ($values as $key => $value){
 		$values[$key] = sprintf("%01.2f", ($value/=$devisor));
 	}
+
 	return $exp-1;
 }
-
-
-
 
 function load_external_libs($name){
 	global $config;
 
 	switch ($name) {
 		case 'pclzip':
-			if (!defined('PCLZIP_TEMPORARY_DIR')) define( 'PCLZIP_TEMPORARY_DIR', REPORTIT_TMP_FD);
+			if (!defined('PCLZIP_TEMPORARY_DIR')) {
+				define('PCLZIP_TEMPORARY_DIR', REPORTIT_TMP_FD);
+			}
+
 			include_once(REPORTIT_BASE_PATH . '/include/vendor/pclzip/pclzip.lib.php');
 		break;
 		case 'graidle':
@@ -894,21 +897,15 @@ function clean_for_sql(&$str){
 	$str = substr($str, 0, strlen($str)-1);
 }
 
-
-
 /* ********************* Archive Functions ***************************** */
-
 function rename_xml_file($p_event, &$p_header) {
 	$p_header['stored_filename'] = $p_header['mtime'] . '.xml';
 	return 1;
 }
 
-
-
 function update_xml_archive($report_id) {
 	global $config;
 
-	$eol       = "\r\n";
 	$arc_path  = read_config_option('reportit_arc_folder');
 	$arc_path .= (substr($arc_path, -1) == '/') ? '' : '/';
 	$tmp_path  = REPORTIT_TMP_FD;
@@ -925,33 +922,33 @@ function update_xml_archive($report_id) {
 
 	/* use an output puffer for flushing */
 	ob_start();
-	print "<?xml version=\"1.0\" encoding=\"UTF-8\"?>$eol";
-	print "<cacti>$eol<report>$eol<settings>$eol";
+	print '<&#63;xml version="1.0" encoding="UTF-8"&#63;>' . PHP_EOL;
+	print '<cacti>' . PHP_EOL . '<report>' . PHP_EOL . '<settings>' . PHP_EOL;
 
-	foreach ($data['report_data'] as $key => $value) print "<$key>" . htmlspecialchars($value, ENT_NOQUOTES) . "</$key>$eol";
-	print "</settings>$eol<measurands>$eol";
+	foreach ($data['report_data'] as $key => $value) print "<$key>" . html_escape($value, ENT_NOQUOTES) . "</$key>" . PHP_EOL;
+	print '</settings>' . PHP_EOL . '<measurands>' . PHP_EOL;
 
 	foreach ($data['report_measurands'] as $measurand){
-		print "<measurand>$eol";
-		foreach ($measurand as $key => $value) print "<$key>" . htmlspecialchars($value, ENT_NOQUOTES) . "</$key>$eol";
-		print "</measurand>$eol";
+		print '<measurand>' . PHP_EOL;
+		foreach ($measurand as $key => $value) print "<$key>" . html_escape($value, ENT_NOQUOTES) . "</$key>" . PHP_EOL;
+		print '</measurand>' . PHP_EOL;
 	}
-	print "</measurands>$eol<data_items>$eol";
+	print '</measurands>' . PHP_EOL . '<data_items>' . PHP_EOL;
 
 	foreach ($data['report_results'] as $results){
-		print "<item>$eol";
-		foreach ($results as $key => $value) print "<_di__$key>" . htmlspecialchars($value, ENT_NOQUOTES) . "</_di__$key>$eol";
-		print "</item>$eol";
+		print '<item>' . PHP_EOL;
+		foreach ($results as $key => $value) print "<_di__$key>" . html_escape($value, ENT_NOQUOTES) . "</_di__$key>" . PHP_EOL;
+		print '</item>' . PHP_EOL;
 	}
-	print "</data_items>$eol<variables>$eol";
+	print '</data_items>' . PHP_EOL . '<variables>' . PHP_EOL;
 
 	foreach ($data['report_variables'] as $variable) {
-		print "<variable>$eol";
-		foreach ($variable as $key => $value) print "<$key>" . htmlspecialchars($value, ENT_NOQUOTES) . "</$key>$eol";
-		print "</variable>$eol";
+		print '<variable>' . PHP_EOL;
+		foreach ($variable as $key => $value) print "<$key>" . html_escape($value, ENT_NOQUOTES) . "</$key>" . PHP_EOL;
+		print '</variable>' . PHP_EOL;
 	}
 
-	print "</variables>$eol</report>$eol</cacti>$eol";
+	print '</variables>' . PHP_EOL . '</report>' . PHP_EOL . '</cacti>' . PHP_EOL;
 	$content = ob_get_clean();
 	$content = mb_convert_encoding($content, 'UTF-8', 'ISO-8859-1');
 
@@ -1158,28 +1155,28 @@ function average($array) {
 	return (array_sum($array)/count($array));
 }
 
-function transform_htmlspecialchars(&$data){
+function transform_html_escape(&$data){
 	if (!is_array($data)) {
-		htmlspecialchars($data);
+		html_escape($data);
 	} else {
 		foreach ($data as $key_1 => $value_1) {
 			if (is_array($value_1)) {
 				foreach ($value_1 as $key_2 => $value_2) {
 					if (is_array($value_2)) {
 						foreach ($value_2 as $key_3 => $value_3) {
-							$value_2[$key_3] = is_null($value_3) ? '' : htmlspecialchars($value_3);
+							$value_2[$key_3] = is_null($value_3) ? '' : html_escape($value_3);
 
 						}
 
 						$value_1[$key_2] = $value_2;
 					} else {
-						$value_1[$key_2] = is_null($value_2) ? '' : htmlspecialchars($value_2);
+						$value_1[$key_2] = is_null($value_2) ? '' : html_escape($value_2);
 					}
 				}
 
 				$data[$key_1] = $value_1;
 			} else {
-				$data[$key_1] = is_null($value_1)? '' : htmlspecialchars($value_1);
+				$data[$key_1] = is_null($value_1)? '' : html_escape($value_1);
 			}
 		}
 	}
@@ -1455,24 +1452,26 @@ function convert_array2xml($data, $indent = 0) {
 	if ($indent < 0) {
 		$indent = 0;
 	}
+
 	$pad = str_repeat("\t", $indent);
+
 	if (is_array($data)) {
-		if (array_key_exists('xml_element', $data) &&
-		    array_key_existS('xml_data', $data)) {
+		if (array_key_exists('xml_element', $data) && array_key_existS('xml_data', $data)) {
 			$element = $data['xml_element'];
+
 			foreach ($data['xml_data'] as $xml_data) {
-				$output .= "$pad<$element>\n";
+				$output .= "$pad<$element>" . PHP_EOL;
 				$output .= convert_array2xml($xml_data, $indent + 1);
-				$output .= "$pad</$element>\n";
+				$output .= "$pad</$element>" . PHP_EOL;
 			}
 		} else {
 			foreach ($data as $key => $value) {
 				if (is_array($value)) {
-					$output .= "$pad<$key>\n";
+					$output .= "$pad<$key>" . PHP_EOL;
 					$output .= convert_array2xml($value, $indent + 1);
-					$output .= "$pad</$key>\n";
+					$output .= "$pad</$key>" . PHP_EOL;
 				} else {
-					$output .= "$pad<$key>" . htmlspecialchars($value, ENT_NOQUOTES) . "</$key>\n";
+					$output .= "$pad<$key>" . html_escape($value, ENT_NOQUOTES) . "</$key>" . PHP_EOL;
 				}
 			}
 		}

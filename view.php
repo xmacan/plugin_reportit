@@ -346,7 +346,9 @@ function standard() {
 
 	html_end_box();
 
-	print $nav;
+	if ($total_rows > $rows) {
+		print $nav;
+	}
 }
 
 function validate_report_vars() {
@@ -453,7 +455,7 @@ function show_report() {
 	}
 
 	/* ==================== checkpoint ==================== */
-	my_report(get_request_var('id'), true);
+	my_report(get_filter_request_var('id'), true);
 	$session_max_rows = get_valid_max_rows();
 	/* ==================================================== */
 
@@ -461,7 +463,7 @@ function show_report() {
 	$table = (get_request_var('archive') != -1)? 'a' : 'c';
 
 	if (get_request_var('filter') != '') {
-		$sql_where = 'WHERE ' . $table . ".name_cache LIKE '%" . get_request_var('filter') . "%'";
+		$sql_where = 'WHERE ' . $table . ".name_cache LIKE " . db_qstr('%' . get_request_var('filter') . '%');
 	} else {
 		$sql_where = '';
 	}
@@ -480,22 +482,28 @@ function show_report() {
 
 	/* load report archive and fill up report cache if requested*/
 	if (get_request_var('archive') != -1) {
-
 		cache_xml_file(get_request_var('id'), get_request_var('archive'));
+
 		$cache_id = get_request_var('id') . '_' . get_request_var('archive');
 	}
 
 	/* load report data */
-	$data = (get_request_var('archive') == -1)
-		  ? get_prepared_report_data(get_request_var('id'),'view', $sql_affix)
-		  : get_prepared_archive_data($cache_id, 'view', $sql_affix);
+	if (get_request_var('archive') == -1) {
+		$data = get_prepared_report_data(get_request_var('id'), 'view', $sql_affix);
+	} else {
+		$date = get_prepared_archive_data($cache_id, 'view', $sql_affix);
+	}
 
 	/* get total number of rows (data items) */
-	$source = (get_request_var('archive') != -1)
-		? 'reportit_tmp_' . get_request_var('id') . '_' . get_request_var('archive') . ' AS a'
-		: 'plugin_reportit_results_' . get_request_var('id') . ' AS a'.
-		  ' INNER JOIN data_template_data AS c'.
-		  ' ON c.local_data_id = a.id';
+	if (get_request_var('archive') != -1) {
+		$source = 'reportit_tmp_' . get_request_var('id') . '_' . get_request_var('archive') . ' AS a
+			INNER JOIN data_template_data AS c
+			ON c.local_data_id = a.id';
+	} else {
+		$source = 'plugin_reportit_results_' . get_request_var('id') . ' AS a
+			INNER JOIN data_template_data AS c
+			ON c.local_data_id = a.id';
+	}
 
 	$total_rows = db_fetch_cell("SELECT COUNT(a.id)
 		FROM $source
@@ -504,10 +512,17 @@ function show_report() {
 	/* save all data source names for the drop down menu.
 	if available use the data source alias instead of the internal names */
 	/* extract result description */
-	$report_data     = $data['report_data'];
-	$mea             = $data['report_measurands'];
-	list($rs_description, $count_rs) = explode('-', $report_data['rs_def']);
-	$rs_description = ($rs_description == '') ? false : explode('|', $rs_description);
+	$report_data = $data['report_data'];
+	$mea         = $data['report_measurands'];
+
+	if (strpos($report_data['rs_def'], '-') !== false) {
+		list($rs_description, $count_rs) = explode('-', $report_data['rs_def']);
+	} else {
+		$rs_description = false;
+		$count_rs       = 0;
+	}
+
+	$rs_description = (empty($rs_description) ? false : explode('|', $rs_description));
 
 	if ($rs_description !== false) {
 		foreach ($rs_description as $key => $id) {
@@ -532,7 +547,9 @@ function show_report() {
 	/* extract 'Overall' description */
 	if (!isset($count_ov)) {
 		list($ov_description, $count_ov) = explode('-', $report_data['sp_def']);
+
 		$ov_description = ($ov_description == '') ? false : explode('|', $ov_description);
+
 		if ($ov_description !== false) {
 			foreach ($ov_description as $key => $id) {
 				if (!isset($data['report_measurands'][$id]['visible']) || $data['report_measurands'][$id]['visible'] == '') {
@@ -544,6 +561,7 @@ function show_report() {
 					}
 				}
 			}
+
 			if (get_request_var('measurand') != -1) {
 				if (in_array(get_request_var('measurand'), $ov_description)) {
 					$ov_description = array(get_request_var('measurand'));
@@ -587,10 +605,19 @@ function show_report() {
 				<table class='filterTable'>
 					<tr>
 						<td>
-							<?php print __('Search', 'reportit');?>
+							<?php print __('Measurand', 'reportit');?>
 						</td>
 						<td>
-							<input id='filter' type='text' value='<?php print get_request_var('filter');?>'>
+							<select id='measurand'>
+								<option value='-1'<?php if (get_request_var('measurand') == '-1') {?> selected<?php }?>><?php print __('Any', 'reportit');?></option>
+								<?php
+								if (cacti_sizeof($measurands)) {
+									foreach ($measurands as $key => $value) {
+										print "<option value='" . $key . "'"; if (get_request_var('measurand') == $key) { print ' selected'; } print '>' . $value . '</option>';
+									}
+								}
+								?>
+							</select>
 						</td>
 						<td>
 							<?php print __('Data Source', 'reportit');?>
@@ -607,38 +634,27 @@ function show_report() {
 								?>
 							</select>
 						</td>
-						<td>
-							<?php print __('Measurand', 'reportit');?>
-						</td>
-						<td>
-							<select id='measurand'>
-								<option value='-1'<?php if (get_request_var('measurand') == '-1') {?> selected<?php }?>><?php print __('Any', 'reportit');?></option>
-								<?php
-								if (cacti_sizeof($measurands)) {
-									foreach ($measurands as $key => $value) {
-										print "<option value='" . $key . "'"; if (get_request_var('measurand') == $key) { print ' selected'; } print '>' . $value . '</option>';
-									}
-								}
-								?>
-							</select>
-						</td>
 						<?php
 						$chk_fields = array(
-							'graph_mode' => __('Show TOP10 Graphs', 'reportit'),
+							'graph_mode' => __('Show Top 10 Graphs', 'reportit'),
 							'subhead'    => __('Show Subheads', 'reportit'),
 							'summary'    => __('Show Summary', 'reportit'),
 						);
 
 						foreach ($chk_fields as $chk_name => $chk_desc) {
-							print "<td>";
+							print '<td><span>';
 
 							$chk_value = get_request_var($chk_name);
 							$chk_set   = !isempty_request_var($chk_name) ? 'on' : '';
-							form_checkbox($chk_name, $chk_set, $chk_desc, '', '', '', '', $chk_desc, true);
 
-							print "</td>";
+							print "<input id='$chk_name' class='ui-state-default ui-corner-all' type='checkbox' " . ($chk_set ? ' checked':'') . '>';
+							print "<label for='$chk_name' title='" . html_escape($chk_desc) . "'>" . $chk_desc . "</label>";
+//							form_checkbox($chk_name, $chk_set, $chk_desc, '', '', '', '', $chk_desc, true);
+
+							print '</span></td>';
 						}
-?>
+
+						?>
 						<td>
 							<span>
 								<input type='submit' value='<?php print __esc_x('Button: use filter settings', 'Go', 'reportit');?>' id='refresh'>
@@ -650,8 +666,12 @@ function show_report() {
 				<table class='filterTable'>
 					<tr>
 						<td>
-							<?php print __('Additional', 'reportit');?>
+							<?php print __('Search', 'reportit');?>
 						</td>
+						<td>
+							<input id='filter' size='25' type='text' value='<?php print get_request_var('filter');?>'>
+						</td>
+						<td><?php print __('Additional', 'reportit');?></td>
 						<td>
 							<select id='info'>
 								<?php
@@ -661,9 +681,7 @@ function show_report() {
 								?>
 							</select>
 						</td>
-						<td>
-							<?php print __('Items', 'reportit');?>
-						</td>
+						<td><?php print __('Items', 'reportit');?></td>
 						<td>
 							<select id='rows'>
 								<option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default', 'reportit');?></option>
@@ -675,9 +693,7 @@ function show_report() {
 							</select>
 						</td>
 						<?php if ($archive != false) {?>
-						<td>
-							<?php print __('Archive', 'reportit');?>
-						</td>
+						<td><?php print __('Archive', 'reportit');?></td>
 						<td>
 							<select id='archive'>
 								<option value='-1'<?php if (get_request_var('archive') == '-1') {?> selected<?php }?>><?php print __('Current', 'reportit');?></option>
@@ -781,6 +797,7 @@ function show_table_view($data, $ds_description, $rs_description, $ov_descriptio
 	$report_results  = $data['report_results'];
 	$report_header   = $report_data['description'];
 	$mea             = $data['report_measurands'];
+
 	$nav = html_nav_bar('view.php?action=show_report&id=' . get_request_var('id'), 20, get_request_var('page'), $rows, $total_rows, $columns, __('Reports', 'reportit'), 'page', 'main');
 	print $nav;
 
@@ -933,7 +950,7 @@ function show_table_view($data, $ds_description, $rs_description, $ov_descriptio
 
 	html_end_box();
 
-	if (cacti_sizeof($report_results)) {
+	if ($total_rows > $rows) {
 		print $nav;
 	}
 

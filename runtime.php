@@ -33,21 +33,21 @@ $run_freq       = '';
 $run_id         = false;
 $run_verb       = false;
 $run_scheduled  = false;
-$run_search     = array('<NOTICE>','<RID>','<DID>');
+$run_search     = array('<NOTICE>', '<RID>', '<DID>');
 $socket_handle  = '';
 $email_counter  = 0;
 $export_counter = 0;
 
 //----- Running on CLI? -----
 if (isset($_SERVER['argv']['0']) && realpath($_SERVER['argv']['0']) == __FILE__) {
-
 	$path = dirname(__FILE__);
+
 	chdir($path);
 	chdir('../../');
 
-	$no_http_headers = true;
-	require_once('include/global.php');
+	require_once('include/cli_check.php');
 	include_once($config['base_path'] . '/lib/rrd.php');
+	include_once($config['base_path'] . '/lib/boost.php');
 //	@define('REPORTIT_BASE_PATH', $path);
 //	@define('CACTI_BASE_PATH', __DIR__);
 	include_once(REPORTIT_BASE_PATH . '/setup.php');
@@ -91,13 +91,18 @@ if (isset($_SERVER['argv']['0']) && realpath($_SERVER['argv']['0']) == __FILE__)
 			case "--debug":
 				@define('REPORTIT_DEBUG',1);
 				break;
-
 		}
 	}
 
-	if (($run_freq == '' & $run_id === false) || ($run_freq != '' & $run_id !== false)) help();
-	if ($run_id) run($run_id);
-	else run($run_freq);
+	if (($run_freq == '' & $run_id === false) || ($run_freq != '' & $run_id !== false)) {
+		help();
+	}
+
+	if ($run_id) {
+		run($run_id);
+	} else {
+		run($run_freq);
+	}
 } else {
 	if (!defined('REPORTIT_BASE_PATH')) {
 		include_once(__DIR__ . '/setup.php');
@@ -215,8 +220,9 @@ function run_error($code, $RID = 0, $DID = 0, $notice='') {
 }
 
 function runtime($report_id) {
-	global	$timezones, $run_scheduled, $run_return, $consolidation_functions,
-	$rrdtool_api, $socket_handle, $calc_fct_names, $calc_fct_names_params, $calc_fct_aliases, $error, $email_counter, $export_counter;
+	global $timezones, $run_scheduled, $run_return, $consolidation_functions;
+	global $rrdtool_api, $socket_handle, $calc_fct_names, $calc_fct_names_params;
+	global $calc_fct_aliases, $error, $email_counter, $export_counter;
 
 	//This report is in_process, so flag it!
 	in_process($report_id);
@@ -239,25 +245,24 @@ function runtime($report_id) {
 	reset_report($report_id);
 
 	//----- load default settings -----
-	$report_settings = db_fetch_row("SELECT * FROM plugin_reportit_reports WHERE id = '$report_id'");
+	$report_settings = db_fetch_row_prepared('SELECT * FROM plugin_reportit_reports WHERE id = ?', array($report_id));
 
 	//----- auto clean-up RRDlist -----
 	autocleanup($report_id);
 
 	//----- check if BOOST is active -----
-	$boost_enabled = (function_exists("boost_process_poller_output") && db_fetch_cell("SELECT 1 FROM `settings` WHERE name = 'boost_rrd_update_enable' and value = 'on'"))? true : false;
-	$debug_value = ($boost_enabled ? "enabled" : "disabled");
-	debug($debug_value, "Boost Plugin Status");
-	$boost_server_enabled = (db_fetch_cell("SELECT 1 FROM `settings` WHERE name = 'boost_server_enable' and value = 'on'"))? true : false;
-	$debug_value = ($boost_server_enabled ? "enabled" : "disabled");
-	debug($debug_value, "Boost Server Status");
+	$boost_enabled = function_exists('boost_process_poller_output') && read_config_option('boost_rrd_update_enable') == 'on' ? true : false;
+	$debug_value   = ($boost_enabled ? 'enabled' : 'disabled');
+
+	debug($debug_value, 'Boost Plugin Status');
 
 	//----- automatic RRDList Generation -----
 	if ($report_settings['autorrdlist']) autorrdlist($report_id);
 
 	//----- Fetch all necessary data for building a report -----
-	$report_definitions = &get_report_definitions($report_id);
-	debug($report_definitions, "Definitions");
+	$report_definitions = get_report_definitions($report_id);
+
+	debug($report_definitions, 'Definitions');
 
 	//----- Define variable for dynamic time frame -----
 	$dynamic 		= $report_definitions['report']['sliding'];
@@ -266,9 +271,8 @@ function runtime($report_id) {
 
 	//----- Update start and enddate by using presets -----
 	if ($dynamic) {
-		$dates 	= rp_get_timespan( $report_definitions['report']['preset_timespan'],
-								$report_definitions['report']['present'],
-								$enable_tmz);
+		$dates 	= rp_get_timespan($report_definitions['report']['preset_timespan'], $report_definitions['report']['present'], $enable_tmz);
+
 		$report_definitions['report']['start_date']	= $dates['start_date'];
 		$report_definitions['report']['end_date'] 	= $dates['end_date'];
 	}
@@ -297,69 +301,84 @@ function runtime($report_id) {
 
 	// We need a key identifier to create columns with a unique name
 	// and an array with the used cf indexes.
-	$keys          = array();
-	$rra_indexes   = array();
+	$keys        = array();
+	$rra_indexes = array();
+
 	foreach($report_definitions['measurands'] as $measurand) {
-		$keys[$measurand['abbreviation']]         = $measurand['id'];
-		$rra_indexes[$measurand['abbreviation']]  = $measurand['cf'];
+		$keys[$measurand['abbreviation']]        = $measurand['id'];
+		$rra_indexes[$measurand['abbreviation']] = $measurand['cf'];
 	}
 
 	//----- Report Settings -----
-	$s_date	= $report_definitions['report']['start_date'];
-	$e_date	= $report_definitions['report']['end_date'];
+	$s_date    = $report_definitions['report']['start_date'];
+	$e_date    = $report_definitions['report']['end_date'];
 
 	//----- Template Settings -----
-	$rra_types  = array_flip($report_definitions['cf']);
-	$ds_type	= $report_definitions['template']['ds_type'];
-	$ds_items   = $report_definitions['ds_items'];
-	$maximum	= $report_definitions['template']['maximum'];
+	$rra_types = array_flip($report_definitions['cf']);
+	$ds_type   = $report_definitions['template']['ds_type'];
+	$ds_items  = $report_definitions['ds_items'];
+	$maximum   = $report_definitions['template']['maximum'];
 
 	//----- Variables -----
-	$variables 	= $report_definitions['variables'];
+	$variables = $report_definitions['variables'];
 
 	/************************************************************************************/
 	//Define 5 caches to save the result of our system functions during the calculation.
 
-	$cache		= array();
-	$df_cache	= array();	//Functions -> Multi-dimensional
-	$dm_cache	= array();	//Measurands
-	$dr_cache 	= array();	//Interim results
-	$dp_cache	= array();	//Functions with parameters ->Multi-dimensional
-	$ds_cache	= array();	//Measurands with flag "spanned"
+	$cache     = array();
+	$df_cache  = array();	//Functions > Multi-dimensional
+	$dm_cache  = array();	//Measurands
+	$dr_cache  = array();	//Interim results
+	$dp_cache  = array();	//Functions with parameters >Multi-dimensional
+	$ds_cache  = array();	//Measurands with flag 'spanned'
 
 	foreach($rra_types as $rra_type) {
-		foreach($calc_fct_names as $value) $df_cache[$rra_type][$value] = false;
-		foreach($calc_fct_names_params as $value) $dp_cache[$rra_type][$value] = false;
-		foreach($calc_fct_aliases as $value) $dp_cache[$rra_type][$value] = false;
+		foreach($calc_fct_names as $value) {
+			$df_cache[$rra_type][$value] = false;
+		}
+
+		foreach($calc_fct_names_params as $value) {
+			$dp_cache[$rra_type][$value] = false;
+		}
+
+		foreach($calc_fct_aliases as $value) {
+			$dp_cache[$rra_type][$value] = false;
+		}
 	}
-	debug($df_cache, "Defined Cache -> Functions");
-	debug($dp_cache, "Defined Cache -> Functions with Parameters");
+
+	debug($df_cache, 'Defined Cache > Functions');
+	debug($dp_cache, 'Defined Cache > Functions with Parameters');
 
 	foreach($report_definitions['measurands'] as $array) {
 		$dm_cache[$array['abbreviation']] = $array['calc_formula'];
 	}
-	debug($dm_cache, "Defined Cache -> Measurands");
+
+	debug($dm_cache, 'Defined Cache > Measurands');
 
 	$cache	= get_possible_rra_names($report_definitions['report']['template_id']);
+
 	foreach($cache as $rra) {
 		foreach($dm_cache as $key => $value) {
 			$name = $key . ':' . $rra;
 			$dr_cache[$name] = false;
 		}
 	}
-	debug($cache, "Data sources - Definition by Cacti");
-	debug($dr_cache, "Defined Cache -> Interim results");
+
+	debug($cache, 'Data sources - Definition by Cacti');
+	debug($dr_cache, 'Defined Cache > Interim results');
 
 	$cache	= $report_definitions['measurands'];
 	foreach($cache as $mm) {
-		if ($mm['spanned'] == 'on') $ds_cache[$mm['abbreviation']] = false;
+		if ($mm['spanned'] == 'on') {
+			$ds_cache[$mm['abbreviation']] = false;
+		}
 	}
-	debug($ds_cache, "Defined Cache -> Measurands (spanned)");
+
+	debug($ds_cache, 'Defined Cache > Measurands (spanned)');
 	/************************************************************************************/
 
 	//----- Start analysing each RRD -----
 	for($i = 0; $i < $number_of_rrds; $i++) {
-
 		//----- Interface Settings -----
 		$local_data_id	= $report_definitions['data_items'][$i]['id'];
 
@@ -370,61 +389,65 @@ function runtime($report_id) {
 			continue;
 		}
 
-		$maxValue 		= $report_definitions['data_items'][$i]['maxValue'];
-		$maxHighValue	= $report_definitions['high_counters'][$i]['maxHighValue'];
+		$maxValue       = $report_definitions['data_items'][$i]['maxValue'];
+		$maxHighValue   = $report_definitions['high_counters'][$i]['maxHighValue'];
 
-
-		$s_time   		= $report_definitions['data_items'][$i]['start_time'];
-		$e_time	 		= $report_definitions['data_items'][$i]['end_time'];
-		$timezone  		= $report_definitions['data_items'][$i]['timezone'];
+		$s_time         = $report_definitions['data_items'][$i]['start_time'];
+		$e_time         = $report_definitions['data_items'][$i]['end_time'];
+		$timezone       = $report_definitions['data_items'][$i]['timezone'];
 
 		//----- Convert weekdays -----
-		$shift_startday		= day_to_number($report_definitions['data_items'][$i]['start_day']);
-		$shift_endday		= day_to_number($report_definitions['data_items'][$i]['end_day']);
+		$shift_startday = day_to_number($report_definitions['data_items'][$i]['start_day']);
+		$shift_endday   = day_to_number($report_definitions['data_items'][$i]['end_day']);
 
 		//----- Participate reporting times -----
-		list($s_hour, $s_min)	= explode(":",$s_time);
-		list($e_hour, $e_min)	= explode(":",$e_time);
+		list($s_hour, $s_min) = explode(':',$s_time);
+		list($e_hour, $e_min) = explode(':',$e_time);
+
 		if ($enable_tmz) {
 			if (!isset($timezones[$timezone])) {
 				run_error(11, $report_id, $local_data_id, $timezone);
 				continue;
 			}
-			$offset_hour	= $timezones[$timezone]['hour'];
-			$offset_min		= $timezones[$timezone]['min'];
+
+			$offset_hour = $timezones[$timezone]['hour'];
+			$offset_min  = $timezones[$timezone]['min'];
 		}
+
 		//----- Participate reporting start- and enddate -----
-		list($s_year, $s_month, $s_day) = explode("-",$s_date);
-		list($e_year, $e_month, $e_day) = explode("-",$e_date);
+		list($s_year, $s_month, $s_day) = explode('-',$s_date);
+		list($e_year, $e_month, $e_day) = explode('-',$e_date);
 
 
 		//----- Calculate correct timestamps -----
-		$f_sp   = ($enable_tmz) ?  gmmktime($s_hour-$offset_hour,$s_min-$offset_min,0,$s_month,$s_day,$s_year) : mktime($s_hour,$s_min,0,$s_month,$s_day,$s_year);
-		$l_sp	= ($enable_tmz) ?  gmmktime($s_hour-$offset_hour,$s_min-$offset_min,0,$e_month,$e_day,$e_year) : mktime($s_hour,$s_min,0,$e_month,$e_day,$e_year);
+		$f_sp = ($enable_tmz) ? gmmktime($s_hour-$offset_hour,$s_min-$offset_min,0,$s_month,$s_day,$s_year) : mktime($s_hour,$s_min,0,$s_month,$s_day,$s_year);
+		$l_sp = ($enable_tmz) ? gmmktime($s_hour-$offset_hour,$s_min-$offset_min,0,$e_month,$e_day,$e_year) : mktime($s_hour,$s_min,0,$e_month,$e_day,$e_year);
 
 		//----- Check start and endtime -----
 		If($s_time > $e_time) {
 			// Endtime is a part of next day
-			$f_ep 	= ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$s_month,$s_day+1,$s_year) : mktime($e_hour,$e_min,0,$s_month,$s_day+1,$s_year);
-			$l_ep	= ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$e_month,$e_day+1,$e_year) : mktime($e_hour,$e_min,0,$e_month,$e_day+1,$e_year);
+			$f_ep = ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$s_month,$s_day+1,$s_year) : mktime($e_hour,$e_min,0,$s_month,$s_day+1,$s_year);
+			$l_ep = ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$e_month,$e_day+1,$e_year) : mktime($e_hour,$e_min,0,$e_month,$e_day+1,$e_year);
 		} else {
 
 			// Endtime is a part of same day
-			$f_ep 	= ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$s_month,$s_day,$s_year) : mktime($e_hour,$e_min,0,$s_month,$s_day,$s_year);
-			$l_ep	= ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$e_month,$e_day,$e_year) : mktime($e_hour,$e_min,0,$e_month,$e_day,$e_year);
+			$f_ep = ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$s_month,$s_day,$s_year) : mktime($e_hour,$e_min,0,$s_month,$s_day,$s_year);
+			$l_ep = ($enable_tmz) ? gmmktime($e_hour-$offset_hour,$e_min-$offset_min,0,$e_month,$e_day,$e_year) : mktime($e_hour,$e_min,0,$e_month,$e_day,$e_year);
 		}
 
 		//----- ERROR CHECK (3) -----
-		// Check whether start- and endpoint are part of future timestamps (Important for timespan "today")
+		// Check whether start- and endpoint are part of future timestamps (Important for timespan 'today')
 		if ($f_sp > time()) {
 			run_error(3, $report_id, $local_data_id);
 			continue;
 		}
+
 		if ($f_ep > time()) {
 			$f_ep	= time();
 			run_error(6, $report_id, $local_data_id);
 		}
-		If($l_ep > time()) {
+
+		if($l_ep > time()) {
 			$l_ep	= time();
 			if (!$dynamic) run_error(6, $report_id, $local_data_id);
 		}
@@ -439,19 +462,20 @@ function runtime($report_id) {
 		//----- run on demand update if Boost is enabled and cached data is part of the report period -----
 		if ($boost_enabled) {
 			$boost_last_run_time = db_fetch_cell("SELECT UNIX_TIMESTAMP(value) FROM settings WHERE name = 'boost_last_run_time'");
+
 			if ($l_ep > $boost_last_run_time) {
-				$output = boost_process_poller_output($boost_server_enabled, $local_data_id);
+				$output = boost_process_poller_output($local_data_id);
 				debug($output, "Boost on demand update for local_data_id $local_data_id");
 			}
 		}
 
 		//----- Set options for rrd_fetch and run it! -----
-		$rrd_data 		= array();
-		$valid_rra_indexes	= array();
+		$rrd_data          = array();
+		$valid_rra_indexes = array();
 
 		foreach($rra_types as $rra_type => $rra_index) {
 			$cmd_line = "fetch $data_source_path $rra_type -s $f_sp -e $l_ep";
-			debug($cmd_line, "RRDfetch command");
+			debug($cmd_line, 'RRDfetch command');
 			$rrd_data[$rra_index] = @rrdtool_execute($cmd_line, false, RRDTOOL_OUTPUT_STDOUT);
 			if (strlen($rrd_data[$rra_index]) == 0){
 				$cf = array_search($rra_index, $rra_types);
@@ -459,21 +483,21 @@ function runtime($report_id) {
 			} else {
 				$valid_rra_indexes[] = $rra_index;
 			}
-			debug($rrd_data[$rra_index], "RRDtool Cacti -> RRDfetch - Raw data");
+			debug($rrd_data[$rra_index], 'RRDtool Cacti > RRDfetch - Raw data');
 		}
 
 		// ----- Break up if we were not able to fetch any data -----
 		if (cacti_sizeof($valid_rra_indexes) == 0) {
-			run_error(5, $report_id, $local_data_id, "Can not open rrdfile or CFs do not match.");
+			run_error(5, $report_id, $local_data_id, 'Can not open rrdfile or CFs do not match.');
 			continue;
 		} else {
 			/* transform data that has not been fetch via the PHP based RRDtool API */
 			foreach($rrd_data as $rra_index => $data) {
 					if (in_array($rra_index, $valid_rra_indexes)) {
-						transform( $data, $rrd_data[$rra_index], $report_definitions['template']);
-						debug($rrd_data[$rra_index], "Transformed RAW data");
+						transform($data, $rrd_data[$rra_index], $report_definitions['template']);
+						debug($rrd_data[$rra_index], 'Transformed RAW data');
 					}
-				}
+			}
 		}
 
 		//----- Read header informations from rrd_data array -----
@@ -490,7 +514,7 @@ function runtime($report_id) {
 		$rrd_ad_data     = &get_type_of_request($shift_startday, $shift_endday, $f_sp, $l_sp, $e_hour,
 												$shift_duration, $rrd_f_mp, $rrd_ep, $rrd_step,
 												$rrd_ds_cnt, $dst_support);
-		debug($rrd_ad_data, "Determined mask for filtering");
+		debug($rrd_ad_data, 'Determined mask for filtering');
 
 		//----- ERROR CHECK (5) -----
 		// Check if startpoints are available
@@ -522,10 +546,10 @@ function runtime($report_id) {
 
 			unset($rrd_data[$rra_index]);
 
-			debug($rrd_ad_data, "Filtered list (includes corr factor)");
+			debug($rrd_ad_data, 'Filtered list (includes corr factor)');
 		}
 
-		debug($pre_data, "Data for calculation");
+		debug($pre_data, 'Data for calculation');
 
 		/* update the data source counter */
 		$rrd_ds_cnt = count($rrd_ds_namv);
@@ -571,23 +595,26 @@ function runtime($report_id) {
 
 		if (cacti_sizeof($data_query_variables)){
 			// get all data for given local data id first
-			$sql = "SELECT `data_local`.* " .
-					"FROM `data_local` " .
-					"WHERE `data_local`.`id`=$local_data_id";
-			$data_local = db_fetch_row($sql);
+			$sql = 'SELECT *
+				FROM data_local
+				WHERE id = ?';
+
+			$data_local = db_fetch_row_prepared($sql, array($local_data_id));
 
 			foreach($data_query_variables as $dq_variable) {
 				if (isset($data_local['id'])) {
 					// now fetch the cached data for given query variable
-					$sql = "SELECT `host_snmp_cache`.`field_value` " .
-							"FROM `host_snmp_cache` " .
-							"WHERE `host_id`= ?" .
-							" AND `snmp_query_id`=?" .
-							" AND `field_name`=? " .
-							" AND `snmp_index`=?" .
-							" AND `present` > 0";
+					$sql = 'SELECT field_value
+						FROM host_snmp_cache
+						WHERE host_id = ?
+						AND snmp_query_id = ?
+						AND field_name = ?
+						AND snmp_index = ?
+						AND present > 0';
+
 					// and update the value for the given data query cache variable
 					$dq_variable_value = db_fetch_cell_prepared($sql,array($data_local['host_id'],$data_local['snmp_query_id'],$dq_variable,$data_local['snmp_index']));
+
 					$variables[$dq_variable] = ($dq_variable_value === false) ? REPORTIT_NAN : $dq_variable_value;
 				} else {
 					$variables[$dq_variable] = REPORTIT_NAN;
@@ -598,11 +625,11 @@ function runtime($report_id) {
 		$params['rrd_ds_cnt']   = $rrd_ds_cnt;
 		$params['rras']         = $rrd_ds_namv;
 		$params['rra_indexes']  = $rra_indexes;
-		debug($variables, "Variables");
+		debug($variables, 'Variables');
 
 		/***************** Start calculation *****************/
 		$results  = calculate( $pre_data, $params, $variables, $df_cache, $dm_cache, $dr_cache, $dp_cache, $ds_cache);
-		debug($results, "Calculation results for saving");
+		debug($results, 'Calculation results for saving');
 		/***************** Start calculation *****************/
 
 		//----- Create new columns for table 'rrd_results_$report_id' -----
@@ -708,18 +735,14 @@ function runtime($report_id) {
 
 
 	//----- Save/update report data -----
-	$now = date("Y-m-d H:i:s");
+	$now = date('Y-m-d H:i:s');
 
 	$sql = "UPDATE plugin_reportit_reports
-		SET last_run	= '$now',
-		runtime 		= '$runtime',
-		start_date 		= '$s_date',
-		end_date 		= '$e_date',
-		ds_description 	= '$ds_description',
-		rs_def 			= '$rs_def',
-		sp_def			= '$sp_def'
-		WHERE id 		= '$report_id'";
-	db_execute($sql);
+		SET last_run = ?, runtime = ?, start_date = ?, end_date = ?,
+		ds_description = ?, rs_def = ?, sp_def = ?
+		WHERE id = ?";
+
+	db_execute_prepared($sql, array($now, $runtime, $s_date, $e_date, $ds_description, $rs_dev, $sp_def, $report_id));
 
 	//----- Archive / Email -----
 	if ($run_scheduled) {
@@ -732,8 +755,12 @@ function runtime($report_id) {
 		if (read_config_option('reportit_auto_export') == 'on'
 			&& $report_definitions['report']['autoexport'] != 'None'
 			&& $report_definitions['report']['autoexport'] != '') {
+
 			$export = autoexport($report_id);
-			if ($export) $export_counter++;
+
+			if ($export) {
+				$export_counter++;
+			}
 		}
 
 		/* create and send out an email */

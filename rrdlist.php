@@ -144,8 +144,8 @@ function standard() {
 	/* ================= input validation ================= */
 
 	/* ==================== checkpoint ==================== */
-	my_report(get_request_var('id'));
-	locked(my_template(get_request_var('id')));
+	my_report(get_filter_request_var('id'));
+	locked(my_template(get_filter_request_var('id')));
 	/* ==================================================== */
 
 	if (get_request_var('rows') == '-1') {
@@ -323,7 +323,9 @@ function standard() {
 
 	html_end_box(true);
 
-	print $nav;
+	if ($total_rows > $rows) {
+		print $nav;
+	}
 
 	draw_actions_dropdown($rrdlist_actions);
 
@@ -552,11 +554,15 @@ function form_actions() {
 			<p>" . __('Click \'Continue\' to Remove the following Data Items.', 'reportit') . '</p>';
 
 		if (is_array($ds_list)) {
-			print	'<p>' . __('List of selected data items:', 'reportit') . '<br>';
+			print	'<p>' . __('List of selected Data Items below.', 'reportit') . '<p>';
+
+			print '<div class="itemlist"><ul>';
 
 			foreach($ds_list as $key => $value) {
-				print __('&#160 |_Data Item : %s<br>', $value, 'reportit');
+				print '<li>' . __('Data Item: %s', $value, 'reportit') . '</li>';
 			}
+
+			print '</ul></div>';
 		}
 
 		print '</td></tr>';

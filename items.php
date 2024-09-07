@@ -258,7 +258,7 @@ function standard() {
 
 	$nav = html_nav_bar('items.php?id=' . get_request_var('id') . '&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, __('Items', 'reportit'), 'page', 'main');
 
-	$header_label	= __('Data Items [add to report: <a style="color:yellow" href="reports.php?action=report_edit&id=%d">%s</a>]', get_request_var('id'), $report_data['description'], 'reportit');
+	$header_label	= __('Data Items [Add to Report: <a class="pic" href="reports.php?action=report_edit&id=%d">%s</a>]', get_request_var('id'), $report_data['description'], 'reportit');
 
 	/* show the Host Template Description in the header, if Host Template Id filter was set */
 	$ht_desc = db_fetch_cell_prepared('SELECT name
@@ -279,17 +279,19 @@ function standard() {
 	items_filter($header_label);
 
 	print $nav;
+
 	form_start('items.php');
+
 	html_start_box('', '100%', '', '3', 'center', '');
 
 	$desc_array = array(
-		'id' => array(
-			'display' => __('ID', 'reportit'),
+		'name_cache' => array(
+			'display' => __('Data Item Name', 'reportit'),
 			'sort' => 'ASC',
 			'align' => 'left'
 		),
-		'name_cache' => array('
-			display' => __('Data Item Name', 'reportit'),
+		'id' => array(
+			'display' => __('ID', 'reportit'),
 			'sort' => 'ASC',
 			'align' => 'left'
 		),
@@ -301,8 +303,8 @@ function standard() {
 	if (cacti_sizeof($rrdlist)) {
 		foreach($rrdlist as $rrd) {
 			form_alternate_row('line' . $rrd['id'], true);
-			form_selectable_cell($rrd['id'], $rrd['id']);
 			form_selectable_cell(filter_value($rrd['name_cache'], get_request_var('filter')), $rrd['id'], 'left');
+			form_selectable_cell($rrd['id'], $rrd['id']);
 			form_checkbox_cell("Select",$rrd["id"]);
 		}
 	} else {
@@ -321,7 +323,9 @@ function standard() {
 
 	html_end_box(true);
 
-	if ($total_rows > $rows) print $nav;
+	if ($total_rows > $rows) {
+		print $nav;
+	}
 
 	form_save_button('rrdlist.php?&id=' . get_request_var('id'), '', '');
 }
