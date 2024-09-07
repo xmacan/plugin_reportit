@@ -96,6 +96,7 @@ the Cacti Webinterface and check the settings under
 Console -> Templates -> Reports - create report template, enable publish, disable locked
 Console -> Management -> Reports - create report from your template. Don't forget use "Add data items"
 Use ReportIT tab
+Manual is in file MANUAL.PDF
 
 ## Authors
 
