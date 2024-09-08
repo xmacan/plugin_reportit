@@ -201,7 +201,7 @@ function standard() {
 		$sql_params);
 
 	/* start with HTML output */
-	html_start_box(__('Reports Filter', 'reportit'), '100%', '', '2', 'center', '');
+	html_start_box(__('Reports Filter', 'reportit'), '100%', '', '3', 'center', '');
 
 	?>
 	<tr class='odd'>
@@ -595,7 +595,8 @@ function show_report() {
 
 	/* start HTML output */
 	$report_header = $data['report_data']['description'];
-	html_start_box(__($report_header), '100%', '', '2', 'center', '');
+
+	html_start_box(__($report_header), '100%', '', '3', 'center', '');
 
 	ob_start();
 	?>
@@ -772,6 +773,7 @@ function show_report() {
 		$report_summary[4][__('Auto Generated RRD list', 'reportit')] = ($data['report_data']['autorrdlist'] == '')? 'disabled' : 'enabled';
 
 		html_start_box('', '100%', '', '3', 'center', '');
+
 		foreach ($report_summary as $array) {
 			print '<tr>';
 			foreach ($array as $key => $value) {

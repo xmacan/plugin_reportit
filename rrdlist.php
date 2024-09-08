@@ -216,7 +216,7 @@ function standard() {
 	);
 
 	/* start with HTML output */
-	html_start_box($header_label, '100%', '', '2', 'center', 'items.php?&id=' . get_request_var('id'));
+	html_start_box($header_label, '100%', '', '3', 'center', 'items.php?&id=' . get_request_var('id'));
 
 	?>
 	<tr class='odd'>
@@ -362,7 +362,7 @@ function rrdlist_edit() {
 	/* start with HTML output */
 
 	form_start('rrdlist.php');
-	html_start_box($header_label, '100%', '', '2', 'center', '');
+	html_start_box($header_label, '100%', '', '3', 'center', '');
 
 	$form_array = array(
 		'rrdlist_header1' => array(
@@ -547,7 +547,7 @@ function form_actions() {
 	top_header();
 	form_start('rrdlist.php?id=' . get_request_var('id'));
 
-	html_start_box($rrdlist_actions[get_request_var('drp_action')], '60%', '', '2', 'center', '');
+	html_start_box($rrdlist_actions[get_request_var('drp_action')], '60%', '', '3', 'center', '');
 
 	if (get_request_var('drp_action') == '1') { //DELETE REPORT
 		print "<tr><td class='textArea'>

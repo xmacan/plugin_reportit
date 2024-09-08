@@ -111,7 +111,7 @@ function html_error_box($message, $site, $jump, $link){
 
 
 function html_wizard_header($title, $site, $size='60%') {
-	html_start_box($title, $size, '', '2', 'center', '');
+	html_start_box($title, $size, '', '3', 'center', '');
 
 	print "<form action='$site' method='post' enctype='multipart/form-data'>\r\n";
 }

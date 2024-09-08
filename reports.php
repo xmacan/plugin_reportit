@@ -566,14 +566,14 @@ function form_save() {
 
 			break;
 		default:
-			input_validate_input_number(get_request_var('report_owner'));
-			input_validate_input_number(get_request_var('template_id'));
-			input_validate_input_key(get_request_var('preset_timespan'), $timespans, true);
+			get_filter_request_var('report_owner');
+			get_filter_request_var('template_id');
+			input_validate_input_key(get_nfilter_request_var('preset_timespan'), $timespans, true);
 
 			/* if template is locked we don't know if the variables have been changed */
 			locked(get_request_var('template_id'));
 
-			form_input_validate(get_request_var('report_description'), 'report_description', '' ,false,3);
+			form_input_validate(get_nfilter_request_var('report_description'), 'report_description', '' ,false, 3);
 
 			/* validate start- and end date if sliding time should not be used */
 			if (!isset_request_var('report_dynamic')) {
@@ -972,7 +972,8 @@ function report_edit() {
 	}
 
 	form_start('reports.php');
-	html_start_box(__('Report Configuration (%s) %s', $tabs[$current_tab], $header_label, 'reportit'), '100%', '', '2', 'center', '');
+
+	html_start_box(__('Report Configuration (%s) %s', $tabs[$current_tab], $header_label, 'reportit'), '100%', '', '3', 'center', '');
 
 	switch(get_nfilter_request_var('tab')) {
 		case 'presets':
@@ -1291,7 +1292,7 @@ function form_actions() {
 	top_header();
 	form_start('reports.php');
 
-	html_start_box($report_actions[get_request_var('drp_action')], '60%', '', '2', 'center', '');
+	html_start_box($report_actions[get_request_var('drp_action')], '60%', '', '3', 'center', '');
 
 	if (cacti_sizeof($reports)) {
 		if (get_request_var('drp_action') == '1') {

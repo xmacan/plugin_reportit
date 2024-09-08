@@ -123,10 +123,11 @@ function standard() {
 	//Number of variables
 	$number_of_variables = count($variables_list);
 
-	$header_label = __("Variables [Template: <a class='linkEditMain' href='templates.php?action=template_edit&id=" . get_request_var('id') . "'>%s</a> ] [%d]", $template_name, $number_of_variables, 'reportit');
+	$header_label = __("Variables [Template: <a class='pic' href='templates.php?action=template_edit&id=" . get_request_var('id') . "'>%s</a> ] [%d]", $template_name, $number_of_variables, 'reportit');
 
 	form_start('variables.php');
-	html_start_box($header_label, '100%', '', '2', 'center', 'variables.php?action=variable_edit&template_id=' . get_request_var('id'));
+
+	html_start_box($header_label, '100%', '', '3', 'center', 'variables.php?action=variable_edit&template_id=' . get_request_var('id'));
 
 	html_header_checkbox($desc_array);
 
@@ -304,6 +305,7 @@ function variable_edit() {
 			'description' => __('A name like "Threshold" for example which should be used as a headline within the report config.', 'reportit'),
 			'method' => 'textbox',
 			'max_length' => '100',
+			'placeholder' => __('Provide a name for this Variable', 'reportit'),
 			'value' => (isset($variable_data['name']) ? $variable_data['name'] : '')
 		),
 		'variable_description' => array(
@@ -312,7 +314,8 @@ function variable_edit() {
 			'method' => 'textarea',
 			'textarea_rows' => '2',
 			'textarea_cols' => '50',
-			'default' => __('Your description', 'reportit'),
+			'default' => '',
+			'placeholder' => __('Provide a meaningful description', 'reportit'),
 			'value' => (isset($variable_data['description']) ? $variable_data['description'] : '')
 		),
 		'variable_maximum' => array(
@@ -374,7 +377,9 @@ function variable_edit() {
 	<?php
 
 	form_start('variables.php');
-	html_start_box($header_label, '100%', '', '2', 'center', '');
+
+	html_start_box($header_label, '100%', '', '3', 'center', '');
+
 	draw_edit_form(
 		array(
 			'config' => array('no_form_tag' => true),
@@ -383,6 +388,7 @@ function variable_edit() {
 	);
 
 	form_save_button('variables.php?&id=' . $template_id);
+
 	html_end_box();
 }
 
@@ -431,7 +437,8 @@ function form_actions() {
 	top_header();
 
 	form_start('variables.php');
-	html_start_box($variable_actions[get_request_var('drp_action')], '60%', '', '2', 'center', '');
+
+	html_start_box($variable_actions[get_request_var('drp_action')], '60%', '', '3', 'center', '');
 
 	if (get_request_var('drp_action') == '1') { //DELETE REPORT
 		print "<tr>

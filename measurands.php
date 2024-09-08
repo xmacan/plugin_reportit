@@ -416,6 +416,13 @@ function measurand_edit() {
 			change_data_type();
 		});
 
+		$('.reportItHover').tooltip({
+			items: '[data-title]',
+			content: function() {
+				return atob($(this).data('title'))
+			}
+		});
+
 		/* initiate settings */
 		change_data_type();
 	});
@@ -425,7 +432,7 @@ function measurand_edit() {
 
 	form_start('measurands.php');
 
-	html_start_box($header_label, '100%', '', '2', 'center', '');
+	html_start_box($header_label, '100%', '', '3', 'center', '');
 
 	draw_edit_form(
 		array(

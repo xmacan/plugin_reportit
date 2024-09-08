@@ -518,7 +518,7 @@ function standard() {
 
 	form_start('templates.php');
 
-	html_start_box('', '100%', '', '2', 'center', '');
+	html_start_box('', '100%', '', '3', 'center', '');
 
 	html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'));
 
@@ -752,7 +752,7 @@ function template_edit() {
 
 	form_start('templates.php');
 
-	html_start_box($header_label, '100%', '', '2', 'center', '');
+	html_start_box($header_label, '100%', '', '3', 'center', '');
 
 	draw_edit_form(
 		array(

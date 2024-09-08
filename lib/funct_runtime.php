@@ -438,9 +438,7 @@ function &get_type_of_request($startday, $endday, $f_sp, $l_sp, $e_hour, $shift_
 	return $rrd_ad_data;
 }
 
-function get_prepared_data(&$rrd_data, &$rrd_ad_data, $rrd_ds_cnt, $ds_type, $corr_factor_start,
-	$corr_factor_end, &$ds_namv, &$rrd_nan) {
-
+function get_prepared_data(&$rrd_data, &$rrd_ad_data, $rrd_ds_cnt, $ds_type, $corr_factor_start, $corr_factor_end, &$ds_namv, &$rrd_nan) {
 	for ($i = 0; $i<$rrd_ds_cnt; $i++) {
 		if (!array_key_exists($i, $ds_namv)) {
 			continue;
@@ -479,7 +477,7 @@ function get_prepared_data(&$rrd_data, &$rrd_ad_data, $rrd_ds_cnt, $ds_type, $co
 
 		//Remove all NAN's
 		foreach ($data[$i] as $key => $value) {
-			if (is_nan($value) | is_null($value)) {
+			if (is_nan($value) || is_null($value)) {
 				unset($data[$i][$key]);
 				unset($multi[$i][$key]);
 				$rrd_nan++;
@@ -498,15 +496,12 @@ function strtoNaN(&$value) {
 }
 
 function transform(&$data, &$rrd_data, &$template) {
-	//Check operating system
-	$eol = (strpos(PHP_OS, 'WIN')) ? "\r\n" : "\n";
-
 	//Transform into the 'normal' form:
-	$ds_names = substr($data, 0, strpos($data, $eol));
+	$ds_names = substr($data, 0, strpos($data, PHP_EOL));
 	$ds_names = str_replace('timestamp', '', $ds_names);
 	debug($ds_names, "Data sources");
 
-	$data = substr($data, strpos($data, $eol));
+	$data = substr($data, strpos($data, PHP_EOL));
 
 	preg_match_all('/\S+/', $ds_names, $rrd_data);
 	debug($rrd_data, "Preg_match_all");
@@ -518,6 +513,14 @@ function transform(&$data, &$rrd_data, &$template) {
 	preg_match_all('/\S+/', $data, $data);
 	$zahl              = count($data[0]);
 	$last_timestamp    = $zahl - $rrd_data['ds_cnt'] - 1;
+
+	/* catch a cases with a missing data source */
+	if (!isset($data[0]) || !cacti_sizeof($data[0])) {
+		return false;
+	}
+
+	//cacti_log('Data Size:' . cacti_sizeof($data[0]) . ', RRD Size:' . cacti_sizeof($rrd_data));
+
 	$rrd_data['start'] = substr($data[0][0], 0, -1);
 	$rrd_data['end']   = substr($data[0][$last_timestamp], 0, -1);
 
