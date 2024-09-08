@@ -31,25 +31,19 @@ function plugin_reportit_install() {
 	api_plugin_register_hook('reportit', 'poller_bottom',         'reportit_poller_bottom',        'setup.php');
 	api_plugin_register_hook('reportit', 'clog_regex_array',      'reportit_clog_regex_array',     'setup.php');
 
-	api_plugin_register_realm('reportit', 'view.php,charts.php', 'View Reports', 1);
-	api_plugin_register_realm('reportit', 'reports.php,rrdlist.php,items.php,run.php', 'Create Reports', 1);
-	api_plugin_register_realm('reportit', 'templates.php,measurands.php,variables.php', 'Administrate Reports', 1);
-
-	$realm_array = array(
-		__('View Reports', 'reportit'),
-		__('Create Reports', 'reportit'),
-		__('Administrate Reports', 'reportit')
-	);
+	api_plugin_register_realm('reportit', 'view.php,charts.php', 'ReportIt - View Reports', 1);
+	api_plugin_register_realm('reportit', 'reports.php,rrdlist.php,items.php,run.php', 'ReportIt - Create Reports', 1);
+	api_plugin_register_realm('reportit', 'templates.php,measurands.php,variables.php', 'ReportIt - Manage Reports', 1);
 
 	reportit_system_setup();
 }
 
 function plugin_reportit_uninstall() {
- 	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_measurands');
- 	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_reports');
- 	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_variables');
- 	db_execute('DROP TABLE IF EXISTS plugin_reportit_data_items');
- 	db_execute('DROP TABLE IF EXISTS plugin_reportit_data_source_items');
+	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_measurands');
+	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_reports');
+	db_execute('DROP TABLE IF EXISTS plugin_reportit_cache_variables');
+	db_execute('DROP TABLE IF EXISTS plugin_reportit_data_items');
+	db_execute('DROP TABLE IF EXISTS plugin_reportit_data_source_items');
 	db_execute('DROP TABLE IF EXISTS plugin_reportit_measurands');
 	db_execute('DROP TABLE IF EXISTS plugin_reportit_presets');
 	db_execute('DROP TABLE IF EXISTS plugin_reportit_recipients');
@@ -368,8 +362,8 @@ function reportit_config_arrays() {
 
 	/* show additional menu entries if plugin is enabled */
 	if (api_plugin_is_enabled('reportit')) {
-		$menu[__('Management')]['plugins/reportit/reports.php']  = __('Reports', 'reportit');
-		$menu[__('Templates')]['plugins/reportit/templates.php'] = __('Report', 'reportit');
+		$menu[__('Management')]['plugins/reportit/reports.php']  = __('ReportIt', 'reportit');
+		$menu[__('Templates')]['plugins/reportit/templates.php'] = __('ReportIt', 'reportit');
 
 		$temp = array(
 			'reportit_templates__1' => array(
